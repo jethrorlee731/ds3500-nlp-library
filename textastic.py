@@ -6,6 +6,8 @@ Jethro R. Lee
 from collections import Counter, defaultdict
 import random as rnd
 import matplotlib.pyplot as plt
+import sankey as sk
+import pandas as pd
 
 
 class Textastic:
@@ -52,3 +54,16 @@ class Textastic:
         for label, nw in num_words.items():
             plt.bar(label, nw)
         plt.show()
+
+    @staticmethod
+    def load_stop_words(stopfile):
+        stop_word_file = open(stopfile, 'r')
+        stop_words = stop_word_file.read()
+        stop_words = stop_words.split(',')
+        stop_word_file.close()
+
+        return stop_words
+
+    def wordcount_sankey(self, word_list=None, k=5):
+        df_word_counts = pd.DataFrame(self.data)
+        sk.make_sankey(df_word_counts, threshold=0, df_word_counts[0],  vals=None, **kwargs )
