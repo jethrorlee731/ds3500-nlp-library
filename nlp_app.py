@@ -1,11 +1,11 @@
-from textastic import Textastic
+from nlp import Nlp
 import pprint as pp
-import textastic_parsers as tp
+import nlp_parsers as tp
 
 
 def main():
     # initialize framework
-    tt = Textastic()
+    tt = Nlp()
 
     # register some text files
     tt.load_text('file1.txt', 'A')

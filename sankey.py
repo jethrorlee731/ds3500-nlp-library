@@ -1,8 +1,4 @@
 """
-Jethro R. Lee
-DS 3500
-Homework 1
-January 24, 2023
 sankey.py: A reusable library for sankey visualization
 """
 
