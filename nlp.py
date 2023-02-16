@@ -12,6 +12,7 @@ from nltk.corpus import stopwords
 import io
 from nltk.tokenize import word_tokenize
 
+
 class Nlp:
 
     def __init__(self):
@@ -22,9 +23,22 @@ class Nlp:
     def _default_parser(filename):
         # incorrect implementation of a direct parser
         # enter code for the parser here
+        stop_words = Nlp.load_stop_words()
+
+        text_file = open(filename, 'r')
+        rows_of_text = text_file.readlines()
+        words = []
+        for row in rows_of_text:
+            row = row.replace('\n', '')
+            row_words = row.split(' ')
+            for word in row_words:
+                if word not in stop_words:
+                    words.append(word)
+        text_file.close()
+
         results = {
-            'wordcount': Counter('to be or not to be'.split(' ')),
-            'numwords': rnd.randrange(10, 50)
+            'wordcount': Counter(words),
+            'numwords': len(words)
         }
 
         return results
@@ -66,20 +80,14 @@ class Nlp:
         line = file1.read()
         words = line.split()
         for r in words:
-            if not r in stop_words:
+            if r not in stop_words:
                 appendFile = open('filteredtext.txt', 'a')
                 appendFile.write(" " + r)
                 appendFile.close()
 
-
-                # I THINK WHAT YOU WROTE BELOW ONLY SPLITS THE WORDS BY A COMMA, IT DOESN'T ACTUALLY REMOVE THE STOP WORDS
-        # stop_word_file = open(stopfile, 'r')
-        # stop_words = stop_word_file.read()
-        # stop_words = stop_words.split(',')
-        # stop_word_file.close()
-
         return stop_words
 
     def wordcount_sankey(self, word_list=None, k=5):
-        df_word_counts = pd.DataFrame(self.data)
-        sk.make_sankey(df_word_counts, threshold=0, df_word_counts[0],  vals=None, **kwargs )
+        #    df_word_counts = pd.DataFrame(self.data)
+        #    sk.make_sankey(df_word_counts, threshold=0, df_word_counts[0],  vals=None, **kwargs )
+        pass

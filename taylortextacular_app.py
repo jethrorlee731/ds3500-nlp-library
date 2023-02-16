@@ -1,6 +1,6 @@
 from nlp import Nlp
 import pprint as pp
-import nlp_parsers as tp
+import nlp_parsers as np
 
 
 def main():
@@ -8,10 +8,10 @@ def main():
     tt = Nlp()
 
     # register some text files
-    tt.load_text('file1.txt', 'A')
-    tt.load_text('file2.txt', 'B')
-    tt.load_text('file3.txt', 'C')
-    tt.load_text('myfile.json', 'J', parser=tp.json_parser)
+    tt.load_text('TaylorSwiftOurSong.txt', 'OurSong')
+    tt.load_text('TaylorSwiftFearless.txt', 'Fearless')
+    tt.load_text('TaylorSwiftDearJohn.txt', 'DearJohn')
+    tt.load_text('TaylorSwiftRed.txt', 'Red')
 
     # produce some visualizations
     pp.pprint(tt.data)
