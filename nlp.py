@@ -3,9 +3,6 @@ Core framework class for NLP Comparative Analysis
 
 """
 from collections import Counter, defaultdict
-import matplotlib.pyplot as plt
-import sankey as sk
-import pandas as pd
 import nltk
 from nltk.corpus import stopwords
 import io
@@ -13,19 +10,34 @@ from nltk.tokenize import word_tokenize
 
 
 class Nlp:
+    """ core framework for NLP comparative analysis
+
+    Attributes:
+        data (dict): dictionary managing data about the different texts that we register with the framework
+        viz (dict): dictionary that maps the name of the visualization to the visualization function
+    """
 
     def __init__(self):
-        # manage data about the different texts that we register with the framework
         self.data = defaultdict(dict)
+        self.viz = {}
 
     @staticmethod
     def _default_parser(filename):
+        """ Parser that cleans out file based on stop words and gets results (interested data about the words)
+
+        Args:
+            filename (str): name of interested filename
+
+        Returns:
+            results (dict): key being what data collected and value being the data
+        """
+        # initialize empty list to store words
         words = []
 
         # load the stop words
         stop_words = Nlp._load_stop_words()
 
-        # open and read the txt file
+        # open and read the interested file
         text_file = open(filename, 'r')
         rows_of_text = text_file.readlines()
 
@@ -36,6 +48,7 @@ class Nlp:
             # separate the words from each row in the txt file
             row_words = row.split(' ')
             for word in row_words:
+                # make all the letters lower case
                 word = word.lower()
                 # only include words in the word count if they aren't a stop word
                 # filter out blank words and possible non-words (e.g., "words" that start with a number)
@@ -57,19 +70,27 @@ class Nlp:
 
     def _save_results(self, label, results):
         """ Integrate parsing results into internal state
-        label: unique label for a text file that we parsed
-        results: the data extracted from the file as a dictionary attribute--> raw data
+
+        Args:
+            label (str): unique label for a text file that we parsed
+            results (dict): the data extracted from the file as a dictionary attribute--> raw data
         """
         for k, v in results.items():
             self.data[k][label] = v
 
-    # parser only works with this specific filename you're registering
     def load_text(self, filename, label=None, parser=None):
-        """ Register a document with the framework """
+        """ Register a document with the framework
+
+        Args:
+            filename(str): name of interested file
+            label(str): optional label for file
+            parser(str): optional type of parser to be used
+        """
         # do default parsing of standard .txt file
         if parser is None:
             results = Nlp._default_parser(filename)
         else:
+            # NEED TO FIGURE OUT WHAT PARSER IS? IS IT ANOTHER FUNCTION?
             results = parser(filename)
         if label is None:
             label = filename
@@ -77,18 +98,14 @@ class Nlp:
         # Save/integrate the data we extracted from the file into the internal state of the framework
         self._save_results(label, results)
 
-    # def compare_num_words(self):
-    #     num_words = self.data['numwords']
-    #     for label, nw in num_words.items():
-    #         plt.bar(label, nw)
-    #     plt.show()
 
     @staticmethod
     # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
     def _load_stop_words(stopfile=None):
         """ Clean the data by removing stop words
+
         Args:
-            stopfile (txt): a file containing stop words, or common words that will get filtered out of the txt file
+            stopfile (str): optional txt file containing stop words, or common words that will get filtered
         Returns:
             stop_words (list): list of stopwords based on NLTK library
         """
@@ -102,7 +119,7 @@ class Nlp:
             stop_file = open(stopfile, 'r')
             rows_of_text = stop_file.readlines()
 
-            # filtering the file
+            # filtering the stop file
             for row in rows_of_text:
                 # remove all break lines
                 row = row.replace('\n', '')
@@ -121,38 +138,29 @@ class Nlp:
 
         return stop_words
 
-    def wordcount_sankey(self, word_list=None, k=5):
-        """ Maps each text to words on a Sankey diagram, where the thickness of the line is the frequency of that word
+    def load_visualization(self, name, vizfunc, *args, **kwargs):
+        """ Integrate visualization into internal state
+
         Args:
-            word_list (list): a list containing a set of words to be shown on the diagram
-            k (int): the union of the k most common words across each file
-        Returns:
-            stop_words (list): list of stopwords based on NLTK library
+            name (str): name of visualization
+            vizfunc (function): name of function to execute the visualization
+            *args: unlimited number of defined parameters
+            **kwargs: unlimited number of undefined parameters
         """
-        word_count_dict = self.data['wordcount']
+        self.viz[name] = (vizfunc, args, kwargs)
 
-        texts = []
-        all_words = []
-        all_counts = []
+    def visualize(self, name=None):
+        """ Call the vizfunc to plot the visualization
 
-        for text, word_count in word_count_dict.items():
-            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
-                                                                reverse=True)}
-            words = list(word_count.keys())
-            if word_list is None:
-                if k is not None:
-                    words = words[:k+1]
-            else:
-                words = [word for word in words if word in word_list]
-            counts = list(word_count.values())
-            counts = counts[:k+1]
-            text = [text] * len(words)
-
-            texts += text
-            all_words += words
-            all_counts += counts
-
-        word_count = list(zip(all_words, all_counts, texts))
-        df_word_counts = pd.DataFrame(word_count, columns=['Word', 'Counts', 'Text'])
-        print(df_word_counts)
-        sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
+        Args:
+            name (str): optional parameter for name of visualization
+        """
+        # run all
+        if name is None:
+            for _, v in self.viz.items():
+                vizfunc, args, kwargs = v
+                vizfunc(self.data, *args, **kwargs)
+        else:
+            # run only the named visualization
+            vizfunc, args, kwargs = self.viz[name]
+            vizfunc(self.data, *args, **kwargs)
