@@ -32,6 +32,7 @@ class Nlp:
             row = row.replace('\n', '')
             row_words = row.split(' ')
             for word in row_words:
+                word = word.lower()
                 if word not in stop_words:
                     words.append(word)
         text_file.close()
@@ -80,7 +81,9 @@ class Nlp:
         Returns:
             stop_words (list): list of stopwords based on NLTK library
         """
+        nltk.download('stopwords')
         stop_words = list(stopwords.words('english'))
+
         # PROBABLY DON'T NEED THE COMMENTED LINES BELOW BECAUSE IT IS ADDRESSED IN THE DEFAULT_PARSER FUNCTION
         # file1 = open(filename)
         #
