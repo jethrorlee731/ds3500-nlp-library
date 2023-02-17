@@ -51,14 +51,14 @@ def main():
     # register some text files
     ts.load_text('TaylorSwiftOurSong.txt', 'Our Song')
     ts.load_text('TaylorSwiftFearless.txt', 'Fearless')
-    # ts.load_text('TaylorSwiftCardigan.txt', 'Cardigan')
-    # ts.load_text('TaylorSwiftDearJohn.txt', 'Dear John')
-    # ts.load_text('TaylorSwiftGetawayCar.txt', 'Getaway Car')
-    # ts.load_text('TaylorSwiftLavenderHaze.txt', 'Lavender Haze')
-    # ts.load_text('TaylorSwiftLover.txt', 'Lover')
-    # ts.load_text('TaylorSwiftRed.txt', 'Red')
-    # ts.load_text('TaylorSwiftWelcometoNewYork.txt', 'Welcome to New York')
-    # ts.load_text('TaylorSwiftWillow.txt', 'Willow')
+    ts.load_text('TaylorSwiftCardigan.txt', 'Cardigan')
+    ts.load_text('TaylorSwiftDearJohn.txt', 'Dear John')
+    ts.load_text('TaylorSwiftGetawayCar.txt', 'Getaway Car')
+    ts.load_text('TaylorSwiftLavenderHaze.txt', 'Lavender Haze')
+    ts.load_text('TaylorSwiftLover.txt', 'Lover')
+    ts.load_text('TaylorSwiftRed.txt', 'Red')
+    ts.load_text('TaylorSwiftWelcometoNewYork.txt', 'Welcome to New York')
+    ts.load_text('TaylorSwiftWillow.txt', 'Willow')
 
     # product sankey diagram with all 10 files
     ts.load_visualization('sankey1', wordcount_sankey)
