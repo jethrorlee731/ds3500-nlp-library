@@ -10,8 +10,8 @@ def main():
     # register some text files
     tt.load_text('TaylorSwiftOurSong.txt', 'Our Song')
     tt.load_text('TaylorSwiftFearless.txt', 'Fearless')
-    tt.load_text('TaylorSwiftDearJohn.txt', 'Dear John')
-    tt.load_text('TaylorSwiftRed.txt', 'Red')
+
+    tt.wordcount_sankey()
 
     # produce some visualizations
     pp.pprint(tt.data)
