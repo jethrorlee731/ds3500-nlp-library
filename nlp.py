@@ -7,6 +7,7 @@ import nltk
 from nltk.corpus import stopwords
 import io
 from nltk.tokenize import word_tokenize
+import nlp_parsers as nlp_par
 
 
 class Nlp:
@@ -90,8 +91,9 @@ class Nlp:
         if parser is None:
             results = Nlp._default_parser(filename)
         else:
-            # NEED TO FIGURE OUT WHAT PARSER IS? IS IT ANOTHER FUNCTION?
-            results = parser(filename)
+            # execute if a json file is passed in
+            if parser == 'json':
+                results = nlp_par.json_parser(filename)
         if label is None:
             label = filename
 
