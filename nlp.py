@@ -33,7 +33,7 @@ class Nlp:
             row_words = row.split(' ')
             for word in row_words:
                 word = word.lower()
-                if word not in stop_words:
+                if word not in stop_words and word != '':
                     words.append(word)
         text_file.close()
 
