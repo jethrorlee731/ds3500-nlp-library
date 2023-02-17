@@ -14,8 +14,8 @@ def main():
     tt.load_text('TaylorSwiftRed.txt', 'Red')
 
     # produce some visualizations
-    pp.pprint(tt.data)
-    tt.compare_num_words()
+    # pp.pprint(tt.data)
+    # tt.compare_num_words()
 
 
 if __name__ == '__main__':

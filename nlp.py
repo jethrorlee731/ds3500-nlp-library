@@ -23,7 +23,7 @@ class Nlp:
     def _default_parser(filename):
         # incorrect implementation of a direct parser
         # enter code for the parser here
-        stop_words = Nlp.load_stop_words()
+        stop_words = Nlp._load_stop_words()
 
         text_file = open(filename, 'r')
         rows_of_text = text_file.readlines()
@@ -54,7 +54,8 @@ class Nlp:
     # parser only works with this specific filename you're registering
     def load_text(self, filename, label=None, parser=None):
         """ Register a document with the framework """
-        if parser is None:  # do default parsing of standard .txt file
+        # do default parsing of standard .txt file
+        if parser is None:
             results = Nlp._default_parser(filename)
         else:
             results = parser(filename)
@@ -72,18 +73,25 @@ class Nlp:
 
     @staticmethod
     # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
-    def load_stop_words(filename):
-        stop_words = set(stopwords.words('english'))
-        file1 = open(filename)
-
-        # Use this to read file content as a stream:
-        line = file1.read()
-        words = line.split()
-        for r in words:
-            if r not in stop_words:
-                appendFile = open('filteredtext.txt', 'a')
-                appendFile.write(" " + r)
-                appendFile.close()
+    def _load_stop_words():
+        """ Clean the data by removing stop words
+        Args:
+            None
+        Returns:
+            stop_words (list): list of stopwords based on NLTK library
+        """
+        stop_words = list(stopwords.words('english'))
+        # PROBABLY DON'T NEED THE COMMENTED LINES BELOW BECAUSE IT IS ADDRESSED IN THE DEFAULT_PARSER FUNCTION
+        # file1 = open(filename)
+        #
+        # # Use this to read file content as a stream:
+        # line = file1.read()
+        # words = line.split()
+        # for r in words:
+        #     if r not in stop_words:
+        #         appendFile = open('filtered'+filename, 'a')
+        #         appendFile.write(" "+r)
+        #         appendFile.close()
 
         return stop_words
 
