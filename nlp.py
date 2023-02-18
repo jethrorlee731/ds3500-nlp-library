@@ -8,6 +8,8 @@ from nltk.corpus import stopwords
 import io
 from nltk.tokenize import word_tokenize
 import nlp_parsers as nlp_par
+from exception import ParserError
+
 
 
 class Nlp:
@@ -119,22 +121,27 @@ class Nlp:
             label(str): optional label for file
             parser(str): optional type of parser to be used
         """
-        # do default parsing of standard .txt file
-        if parser is None:
-            words = Nlp._default_parser(filename)
-            clean_words = Nlp._filter_stopwords(words)
-            results = Nlp._data_results(clean_words)
-        else:
-            # execute if a json file is passed in
-            if parser == 'json':
-                words = nlp_par.json_parser(filename, text_column='text')
+        try:
+            # do default parsing of standard .txt file
+            if parser is None:
+                words = Nlp._default_parser(filename)
                 clean_words = Nlp._filter_stopwords(words)
                 results = Nlp._data_results(clean_words)
-        if label is None:
-            label = filename
+            else:
+                # execute if a json file is passed in
+                if parser == 'json':
+                    words = nlp_par.json_parser(filename, text_column='text')
+                    clean_words = Nlp._filter_stopwords(words)
+                    results = Nlp._data_results(clean_words)
+        except Exception as e:
+            raise ParserError(filename, str(e))
 
-        # Save/integrate the data we extracted from the file into the internal state of the framework
-        self._save_results(label, results)
+        else:
+            if label is None:
+                label = filename
+
+            # Save/integrate the data we extracted from the file into the internal state of the framework
+            self._save_results(label, results)
 
 
     @staticmethod
