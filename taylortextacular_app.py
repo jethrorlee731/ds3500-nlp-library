@@ -81,7 +81,7 @@ def main():
     ts.visualize('sankey1')
 
     # # print out data dictionary
-    # pp.pprint(ts.data)
+    pp.pprint(ts.data)
 
 
 if __name__ == '__main__':

@@ -21,22 +21,59 @@ class Nlp:
     def __init__(self):
         self.data = defaultdict(dict)
         self.viz = {}
+    @staticmethod
+    def _data_results(clean_words):
+        """ Return data results based on the words
+
+        Args:
+            clean_words (list): list of clean words
+        Returns:
+            results (dict): dictionary with the data results based on the words
+        """
+        length = 0
+        for word in clean_words:
+            length += len(word)
+        avg_wl = length / len(clean_words)
+
+        # create a dictionary with the frequency of each unique word in a file as well as the word count of the file
+        results = {
+            'wordcount': Counter(clean_words),
+            'numwords': len(clean_words),
+            'avgwordlength': avg_wl
+        }
+        return results
+    @staticmethod
+    def _filter_stopwords(words):
+        """ Filter out stop words from the given words
+        Args:
+            words (list): list of words that may have stop words
+        Returns:
+            clean_words (list): list of words that don't include the stop words
+        """
+        # initialize an empty list
+        clean_words = []
+
+        # load the stop words
+        stop_words = Nlp._load_stop_words()
+
+        # make all the letters lower case
+        for word in words:
+            if word not in stop_words:
+                clean_words.append(word)
+
+        return clean_words
 
     @staticmethod
     def _default_parser(filename):
-        """ Parser that cleans out file based on stop words and gets results (interested data about the words)
+        """ Parser that reads in a txt file
 
         Args:
             filename (str): name of interested filename
-
         Returns:
             results (dict): key being what data collected and value being the data
         """
         # initialize empty list to store words
         words = []
-
-        # load the stop words
-        stop_words = Nlp._load_stop_words()
 
         # open and read the interested file
         text_file = open(filename, 'r')
@@ -48,26 +85,21 @@ class Nlp:
             row = row.replace('\n', '')
             # separate the words from each row in the txt file
             row_words = row.split(' ')
+
             for word in row_words:
-                # make all the letters lower case
+                # change all letters to lower case
                 word = word.lower()
-                # only include words in the word count if they aren't a stop word
                 # filter out blank words and possible non-words (e.g., "words" that start with a number)
-                if word not in stop_words and word != '' and word[0].isalpha():
+                if word != '' and word[0].isalpha():
                     # remove punctuation from the end of words
                     if not word[-1].isalpha():
                         word = word[:-1]
                     words.append(word)
+
         # close the file
         text_file.close()
 
-        # create a dictionary with the frequency of each unique word in a file as well as the word count of the file
-        results = {
-            'wordcount': Counter(words),
-            'numwords': len(words)
-        }
-
-        return results
+        return words
 
     def _save_results(self, label, results):
         """ Integrate parsing results into internal state
@@ -89,11 +121,15 @@ class Nlp:
         """
         # do default parsing of standard .txt file
         if parser is None:
-            results = Nlp._default_parser(filename)
+            words = Nlp._default_parser(filename)
+            clean_words = Nlp._filter_stopwords(words)
+            results = Nlp._data_results(clean_words)
         else:
             # execute if a json file is passed in
             if parser == 'json':
-                results = nlp_par.json_parser(filename)
+                words = nlp_par.json_parser(filename, text_column='text')
+                clean_words = Nlp._filter_stopwords(words)
+                results = Nlp._data_results(clean_words)
         if label is None:
             label = filename
 
@@ -118,28 +154,10 @@ class Nlp:
             stop_words = []
 
             if parser is None:
-                # open and read the stop file
-                stop_file = open(stopfile, 'r')
-                rows_of_text = stop_file.readlines()
+                stop_words = Nlp._default_parser(stopfile)
 
-                # filtering the stop file
-                for row in rows_of_text:
-                    # remove all break lines
-                    row = row.replace('\n', '')
-                    # separate the words from each row in the txt file
-                    row_words = row.split(' ')
-                    for word in row_words:
-                        word = word.lower()
-                        # filter out blank words and possible non-words (e.g., "words" that start with a number)
-                        if word != '' and word[0].isalpha():
-                            # remove punctuation from the end of words
-                            if not word[-1].isalpha():
-                                word = word[:-1]
-                            stop_words.append(word)
             else:
                 pass
-            # close the file
-            stop_file.close()
 
         return stop_words
 

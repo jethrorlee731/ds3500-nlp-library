@@ -3,13 +3,13 @@ import json
 from collections import Counter
 
 
-def json_parser(filename):
+def json_parser(filename, text_column):
+    words_list = []
     f = open(filename, 'r')
     raw = json.load(f)
-    text = raw['text']
-    words = text.split(' ')
-    wc = Counter(words)
-    num = len(words)
+    for item in raw:
+        words = item[text_column].split()
+        for word in words:
+            words_list.append(word)
     f.close()
-
-    return {'wordcount': wc, 'numwords': num}
+    return words_list
