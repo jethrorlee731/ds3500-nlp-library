@@ -103,7 +103,7 @@ class Nlp:
 
     @staticmethod
     # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
-    def _load_stop_words(stopfile=None):
+    def _load_stop_words(stopfile=None, parser=None):
         """ Clean the data by removing stop words
 
         Args:
@@ -117,24 +117,27 @@ class Nlp:
         else:
             stop_words = []
 
-            # open and read the stop file
-            stop_file = open(stopfile, 'r')
-            rows_of_text = stop_file.readlines()
+            if parser is None:
+                # open and read the stop file
+                stop_file = open(stopfile, 'r')
+                rows_of_text = stop_file.readlines()
 
-            # filtering the stop file
-            for row in rows_of_text:
-                # remove all break lines
-                row = row.replace('\n', '')
-                # separate the words from each row in the txt file
-                row_words = row.split(' ')
-                for word in row_words:
-                    word = word.lower()
-                    # filter out blank words and possible non-words (e.g., "words" that start with a number)
-                    if word != '' and word[0].isalpha():
-                        # remove punctuation from the end of words
-                        if not word[-1].isalpha():
-                            word = word[:-1]
-                        stop_words.append(word)
+                # filtering the stop file
+                for row in rows_of_text:
+                    # remove all break lines
+                    row = row.replace('\n', '')
+                    # separate the words from each row in the txt file
+                    row_words = row.split(' ')
+                    for word in row_words:
+                        word = word.lower()
+                        # filter out blank words and possible non-words (e.g., "words" that start with a number)
+                        if word != '' and word[0].isalpha():
+                            # remove punctuation from the end of words
+                            if not word[-1].isalpha():
+                                word = word[:-1]
+                            stop_words.append(word)
+            else:
+                pass
             # close the file
             stop_file.close()
 
