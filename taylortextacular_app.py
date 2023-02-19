@@ -71,9 +71,8 @@ def sentiment_analysis_bars(data, subplot_rows, subplot_columns):
         subplot_rows (int): the number of rows in the sub-plot
         subplot_columns (int): the number of columns in the sub-plot
     Returns:
-        None (just a stacked bar chart!)
+        None (just bar charts!)
     """
-    nltk.download('vader_lexicon')
     texts = []
     sentiment_distributions = []
 
@@ -82,12 +81,19 @@ def sentiment_analysis_bars(data, subplot_rows, subplot_columns):
 
     # initialize a sentiment intensity analyzer
     sia = SentimentIntensityAnalyzer()
+
+    # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
         words = ''
         for word, count in word_count.items():
             word = (word + ' ') * count
             words += word
+
+        # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
+        # dictionary
         sentiment_distribution = sia.polarity_scores(words)
+
+        # store the names of the files as well as its sentiment distribution dictionaries
         texts.append(text)
         sentiment_distributions.append(sentiment_distribution)
 
@@ -96,9 +102,6 @@ def sentiment_analysis_bars(data, subplot_rows, subplot_columns):
     for i in range(len(texts)):
         plt.subplot(subplot_rows, subplot_columns, i + 1)
         for sentiment, score in sentiment_distributions[i].items():
-            sentiment_data = {'Negative': [sentiment_distributions[i]['neg']],
-                              'Neutral': [sentiment_distributions[i]['neu']],
-                              'Positive': [sentiment_distributions[i]['pos']]}
             # displays the negative score of a text file
             if sentiment == 'neg':
                 plt.barh('Negative', score, label='Negative', color='firebrick')
@@ -121,11 +124,14 @@ def sentiment_analysis_bars(data, subplot_rows, subplot_columns):
     # adjusts spacing between graphs
     plt.subplots_adjust(wspace=.8, hspace=.8)
 
-    # display the stacked bar charts
+    # display the bar charts
     plt.show()
 
 
 def main():
+    # download a package needed for sentiment analysis
+    nltk.download('vader_lexicon')
+
     # initialize framework
     ts = Nlp()
 
