@@ -63,13 +63,14 @@ def wordcount_sankey(data, word_list=None, k=5):
     sk.make_sankey(df_word_counts, 0, 'Text', 'Words', vals=df_word_counts['Counts'])
 
 
-def sentiment_analysis_bars(data, subplot_rows, subplot_columns):
+def sentiment_analysis_bars(data, subplot_rows, subplot_columns, k=None):
     # Citation: https://realpython.com/python-nltk-sentiment-analysis/
     """ Creates a bar chart for each file representing their overall sentiments
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
         subplot_rows (int): the number of rows in the sub-plot
         subplot_columns (int): the number of columns in the sub-plot
+        k (int): the number of words considered from each file for analysis, based on their frequencies
     Returns:
         None (just bar charts!)
     """
@@ -85,6 +86,11 @@ def sentiment_analysis_bars(data, subplot_rows, subplot_columns):
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
         words = ''
+        # if a k value is given, restrict the analysis to consider only the k most popular words in each file
+        if k is not None:
+            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+                                                                reverse=True)}
+            word_count = dict(word_count.items()[:k])
         for word, count in word_count.items():
             word = (word + ' ') * count
             words += word
