@@ -11,7 +11,6 @@ import nlp_parsers as nlp_par
 from exception import ParserError
 
 
-
 class Nlp:
     """ core framework for NLP comparative analysis
 
@@ -23,6 +22,7 @@ class Nlp:
     def __init__(self):
         self.data = defaultdict(dict)
         self.viz = {}
+
     @staticmethod
     def _data_results(clean_words):
         """ Return data results based on the words
@@ -44,6 +44,7 @@ class Nlp:
             'avgwordlength': avg_wl
         }
         return results
+
     @staticmethod
     def _filter_stopwords(words):
         """ Filter out stop words from the given words
@@ -58,10 +59,9 @@ class Nlp:
         # load the stop words
         stop_words = Nlp._load_stop_words()
 
-        # make all the letters lower case
-        for word in words:
-            if word not in stop_words:
-                clean_words.append(word)
+        # make all the letters lower case and filter out the file's stop words
+        # Citation: https://realpython.com/python-nltk-sentiment-analysis/
+        clean_words = [word.lower() for word in words if word.lower() not in stop_words]
 
         return clean_words
 
@@ -81,10 +81,14 @@ class Nlp:
         text_file = open(filename, 'r')
         rows_of_text = text_file.readlines()
 
+        # break the file into words
+
         # filtering the file
         for row in rows_of_text:
             # remove all break lines
             row = row.replace('\n', '')
+            # remove all instances of "\u2005"
+            row = row.replace('\u2005', '')
             # separate the words from each row in the txt file
             row_words = row.split(' ')
 
@@ -94,7 +98,7 @@ class Nlp:
                 # filter out blank words and possible non-words (e.g., "words" that start with a number)
                 if word != '' and word[0].isalpha():
                     # remove punctuation from the end of words
-                    if not word[-1].isalpha():
+                    while not word[-1].isalpha():
                         word = word[:-1]
                     words.append(word)
 
@@ -142,7 +146,6 @@ class Nlp:
 
             # Save/integrate the data we extracted from the file into the internal state of the framework
             self._save_results(label, results)
-
 
     @staticmethod
     # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/

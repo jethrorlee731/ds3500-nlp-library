@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import sankey as sk
 import pandas as pd
 from exception import ParserError
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 
 
 def wordcount_sankey(data, word_list=None, k=5):
@@ -61,6 +63,68 @@ def wordcount_sankey(data, word_list=None, k=5):
     sk.make_sankey(df_word_counts, 0, 'Text', 'Words', vals=df_word_counts['Counts'])
 
 
+def sentiment_analysis_bars(data, subplot_rows, subplot_columns):
+    # Citation: https://realpython.com/python-nltk-sentiment-analysis/
+    """ Creates a bar chart for each file representing their overall sentiments
+    Args:
+        data (dict): data extracted from the file as a dictionary attribute--> raw data
+        subplot_rows (int): the number of rows in the sub-plot
+        subplot_columns (int): the number of columns in the sub-plot
+    Returns:
+        None (just a stacked bar chart!)
+    """
+    nltk.download('vader_lexicon')
+    texts = []
+    sentiment_distributions = []
+
+    # obtain the word count dictionary of a file
+    word_count_dict = data['wordcount']
+
+    # initialize a sentiment intensity analyzer
+    sia = SentimentIntensityAnalyzer()
+    for text, word_count in word_count_dict.items():
+        words = ''
+        for word, count in word_count.items():
+            word = (word + ' ') * count
+            words += word
+        sentiment_distribution = sia.polarity_scores(words)
+        texts.append(text)
+        sentiment_distributions.append(sentiment_distribution)
+
+    # Creates subplots showing the sentiment score distributions (positive vs. neutral vs. negative) of each file as
+    # bar charts
+    for i in range(len(texts)):
+        plt.subplot(subplot_rows, subplot_columns, i + 1)
+        for sentiment, score in sentiment_distributions[i].items():
+            sentiment_data = {'Negative': [sentiment_distributions[i]['neg']],
+                              'Neutral': [sentiment_distributions[i]['neu']],
+                              'Positive': [sentiment_distributions[i]['pos']]}
+            # displays the negative score of a text file
+            if sentiment == 'neg':
+                plt.barh('Negative', score, label='Negative', color='firebrick')
+            # displays the neutral score of a text file
+            elif sentiment == 'neu':
+                plt.barh('Neutral', score, label='Neutral', color='gold')
+            # displays the positive score of a text file
+            elif sentiment == 'pos':
+                plt.barh('Positive', score, label='Positive', color='limegreen')
+
+            # Each subplot is labeled based on the text they are representing
+            plt.gca().title.set_text('Sentiment Distributions For "' + texts[i] + '"')
+
+    # Gives the plot a title
+    plt.suptitle('Overall Sentiment Distributions')
+
+    # resizes the graph to ensure that it can be clearly read
+    plt.gcf().set_size_inches(50, 14)
+
+    # adjusts spacing between graphs
+    plt.subplots_adjust(wspace=.8, hspace=.8)
+
+    # display the stacked bar charts
+    plt.show()
+
+
 def main():
     # initialize framework
     ts = Nlp()
@@ -83,6 +147,8 @@ def main():
     # product sankey diagram with all 10 files
     ts.load_visualization('sankey1', wordcount_sankey)
     ts.visualize('sankey1')
+    ts.load_visualization('sentiment1', sentiment_analysis_bars, 5, 2)
+    ts.visualize('sentiment1')
 
     # # print out data dictionary
     pp.pprint(ts.data)
