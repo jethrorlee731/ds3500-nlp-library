@@ -150,7 +150,6 @@ class Nlp:
                 words = Nlp._default_parser(filename)
                 clean_words = Nlp._filter_stopwords(words)
                 results = Nlp._data_results(clean_words)
-                print('results', results)
             else:
                 assert type(parser) == str, 'Parser must be a string'
                 # execute if a json file is passed in
