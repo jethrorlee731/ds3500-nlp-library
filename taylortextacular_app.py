@@ -21,6 +21,14 @@ def wordcount_sankey(data, word_list=None, k=5):
     Returns:
         None (just a sankey diagram!)
     """
+    # Exception handling for the given parameters
+    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
+    assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
+
+    if word_list is not None:
+        assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
+        assert type(all(word for word in word_list)) == str, 'Word list must only contain strings'
+
     overall_word_count = defaultdict(lambda: 0)
     word_count_dict = data['wordcount']
     text_word_count_data = {'Text': [], 'Words': [], 'Counts': []}
@@ -46,7 +54,7 @@ def wordcount_sankey(data, word_list=None, k=5):
             overall_word_count[text_word_count_data['Words'][i]] += text_word_count_data['Counts'][i]
 
     # Sorts the overall word counts in descending order by counts
-    overall_word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+    overall_word_count = {word: count for word, count in sorted(overall_word_count.items(), key=lambda item: item[1],
                                                                 reverse=True)}
 
     # if a value for k is specified, only the words with the top kth overall counts are shown on the Sankey chart
@@ -63,7 +71,7 @@ def wordcount_sankey(data, word_list=None, k=5):
     sk.make_sankey(df_word_counts, 0, 'Text', 'Words', vals=df_word_counts['Counts'])
 
 
-def sentiment_analysis_bars(data, subplot_rows, subplot_columns, k=None):
+def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, k=None):
     # Citation: https://realpython.com/python-nltk-sentiment-analysis/
     """ Creates a bar chart for each file representing their overall sentiments
     Args:
@@ -74,6 +82,11 @@ def sentiment_analysis_bars(data, subplot_rows, subplot_columns, k=None):
     Returns:
         None (just bar charts!)
     """
+    # Exception handling for the given parameters
+    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
+    assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
+    assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
+
     texts = []
     sentiment_distributions = []
 
@@ -88,6 +101,7 @@ def sentiment_analysis_bars(data, subplot_rows, subplot_columns, k=None):
         words = ''
         # if a k value is given, restrict the analysis to consider only the k most popular words in each file
         if k is not None:
+            assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
             word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
                                                                 reverse=True)}
             word_count = dict(word_count.items()[:k])

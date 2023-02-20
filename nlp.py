@@ -32,6 +32,10 @@ class Nlp:
         Returns:
             results (dict): dictionary with the data results based on the words
         """
+        assert type(clean_words) == list, 'Clean words must be consolidated into a list'
+        for word in clean_words:
+            assert type(word) == str, 'Clean word list must only contain strings before getting used'
+
         length = 0
         for word in clean_words:
             length += len(word)
@@ -53,8 +57,9 @@ class Nlp:
         Returns:
             clean_words (list): list of words that don't include the stop words
         """
-        # initialize an empty list
-        clean_words = []
+        assert type(words) == list, 'Must input the words to be filtered as a list'
+        for word in words:
+            assert type(word) == str, 'Word list must only contain strings before getting filtered'
 
         # load the stop words
         stop_words = Nlp._load_stop_words()
@@ -62,7 +67,6 @@ class Nlp:
         # make all the letters lower case and filter out the file's stop words
         # Citation: https://realpython.com/python-nltk-sentiment-analysis/
         clean_words = [word.lower() for word in words if word.lower() not in stop_words]
-
         return clean_words
 
     @staticmethod
@@ -74,6 +78,11 @@ class Nlp:
         Returns:
             results (dict): key being what data collected and value being the data
         """
+        # Exception handling for the given parameters
+        assert filename[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
+                                                        '.txt, .json'
+        assert type(filename) == str, 'File must be inputted as a string'
+
         # initialize empty list to store words
         words = []
 
@@ -104,7 +113,6 @@ class Nlp:
 
         # close the file
         text_file.close()
-
         return words
 
     def _save_results(self, label, results):
@@ -114,6 +122,9 @@ class Nlp:
             label (str): unique label for a text file that we parsed
             results (dict): the data extracted from the file as a dictionary attribute--> raw data
         """
+        assert type(label) == str, 'Label for the text file must be a string'
+        assert type(results) == dict, 'The data extracted from this file must be stored in a dictionary'
+
         for k, v in results.items():
             self.data[k][label] = v
 
@@ -125,13 +136,23 @@ class Nlp:
             label(str): optional label for file
             parser(str): optional type of parser to be used
         """
+        # Exception handling for the given parameters
+        assert filename[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
+                                                        '.txt, .json'
+        assert type(filename) == str, 'File must be inputted as a string'
+
+        if label is not None:
+            assert type(label) == str, 'Label for the text file must be a string'
+
         try:
             # do default parsing of standard .txt file
             if parser is None:
                 words = Nlp._default_parser(filename)
                 clean_words = Nlp._filter_stopwords(words)
                 results = Nlp._data_results(clean_words)
+                print('results', results)
             else:
+                assert type(parser) == str, 'Parser must be a string'
                 # execute if a json file is passed in
                 if parser == 'json':
                     words = nlp_par.json_parser(filename, text_column='text')
@@ -141,11 +162,15 @@ class Nlp:
             raise ParserError(filename, str(e))
 
         else:
+            print('File is successfully parsed')
             if label is None:
                 label = filename
 
             # Save/integrate the data we extracted from the file into the internal state of the framework
             self._save_results(label, results)
+
+        finally:
+            print('CLOSING CONNECTION')
 
     @staticmethod
     # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
@@ -161,12 +186,17 @@ class Nlp:
             nltk.download('stopwords')
             stop_words = list(stopwords.words('english'))
         else:
+            #assert stopfile[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
+            #                                                '.txt, .json'
+            #assert type(stopfile) == str, 'File must be inputted as a string'
             stop_words = []
 
             if parser is None:
                 stop_words = Nlp._default_parser(stopfile)
 
             else:
+                assert type(parser) == str, 'Parser must be inputted as a string'
+                # Perform parsing
                 pass
 
         return stop_words
@@ -180,6 +210,8 @@ class Nlp:
             *args: unlimited number of defined parameters
             **kwargs: unlimited number of undefined parameters
         """
+        assert type(name) == str, 'The name of the visualization must be a string'
+        assert (callable(vizfunc)), 'You must input a callable function to execute the visualization'
         self.viz[name] = (vizfunc, args, kwargs)
 
     def visualize(self, name=None):
@@ -195,5 +227,6 @@ class Nlp:
                 vizfunc(self.data, *args, **kwargs)
         else:
             # run only the named visualization
+            assert type(name) == str, 'The name of the visualization must be a string'
             vizfunc, args, kwargs = self.viz[name]
             vizfunc(self.data, *args, **kwargs)
