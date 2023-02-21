@@ -36,15 +36,25 @@ class Nlp:
         for word in clean_words:
             assert type(word) == str, 'Clean word list must only contain strings before getting used'
 
+        # set length equal to 0
         length = 0
         for word in clean_words:
+            # add length of word to length variable
             length += len(word)
+        # compute average word length
         avg_wl = length / len(clean_words)
+
+        # initialize empty list
+        word_length_list = []
+        for word in clean_words:
+            # append length of word to the new list
+            word_length_list.append(len(word))
 
         # create a dictionary with the frequency of each unique word in a file as well as the word count of the file
         results = {
             'wordcount': Counter(clean_words),
             'numwords': len(clean_words),
+            'wordlengthlist': word_length_list,
             'avgwordlength': avg_wl
         }
         return results

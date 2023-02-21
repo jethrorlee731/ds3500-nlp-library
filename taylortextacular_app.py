@@ -147,6 +147,88 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, k=None):
     # display the bar charts
     plt.show()
 
+def avgwlength_boxplot(data):
+    """ Creates a boxplot of word lengths on one visualization with labels for each of the files, showing distributions
+    Citation:
+    https://www.tutorialspoint.com/creating-multiple-boxplots-on-the-same-graph-from-a-dictionary-using-matplotlib
+
+    Args:
+        data (dict): data extracted from the file as a dictionary attribute--> raw data
+    Returns:
+        None (boxplot in one visualization of all the files)
+    """
+    # obtain the word length dictionary
+    word_length_dict = data['wordlengthlist']
+
+    # set the figure size
+    plt.rcParams["figure.figsize"] = [7.50, 3.50]
+    plt.rcParams["figure.autolayout"] = True
+
+    # create a figure with the subplots
+    fig, ax = plt.subplots()
+
+    # plot the boxplot with labels
+    ax.boxplot(word_length_dict.values())
+    ax.set_xticklabels(word_length_dict.keys(), rotation=90, fontsize=5)
+
+    # make the boxplot show
+    plt.show()
+
+def avgwlength_bar(data):
+    """ Creates a bar chart of the average word length for each of the files
+    Args:
+        data (dict): data extracted from the file as a dictionary attribute--> raw data
+    Returns:
+        None (just a bar chart)
+    """
+    # obtain the avg word length dictionary
+    avg_wordl_dict = data['avgwordlength']
+
+    # get the labels and values in separate variables
+    label = list(avg_wordl_dict.keys())
+    value = list(avg_wordl_dict.values())
+
+    # set the figure size
+    plt.rcParams["figure.figsize"] = [7.50, 3.50]
+    plt.rcParams["figure.autolayout"] = True
+
+    # plot the bar chart, style the x ticks, label the axes and title
+    plt.bar(range(len(avg_wordl_dict)), value, tick_label=label)
+    plt.xticks(rotation=90, fontsize=5)
+    plt.xlabel('Name of Song')
+    plt.ylabel('Average Word Length')
+    plt.title('Average Word Lengths for the Different Songs')
+
+    # make the chart show
+    plt.show()
+
+def total_wordl_boxplot(data):
+    """ Create a boxplot that gives distribution of the word length for all the files combined
+    Args:
+        data (dict): data extracted from the file as a dictionary attribute--> raw data
+    Returns:
+        None (just a boxplot)
+    """
+    # obtain the word length list dictionary
+    word_length_dict = data['wordlengthlist']
+
+    # get just the word lengths
+    total_wl_list = list(word_length_dict.values())
+
+    # turn the 2d list into 1d
+    total_wl_list = [item for sublist in total_wl_list for item in sublist]
+
+    # set the figure size
+    fig = plt.figure(figsize=(10, 7))
+
+    # create the box plot, set the axes and title
+    plt.boxplot(total_wl_list)
+    plt.ylabel("Word Length")
+    plt.title("Word Length Distribution for All Files Combined")
+
+    # show plot
+    plt.show()
+
 
 def main():
     # download a package needed for sentiment analysis
@@ -170,13 +252,27 @@ def main():
     except ParserError as pe:
         print(str(pe))
 
-    # product sankey diagram with all 10 files
+    # produce sankey diagram with the passed in files
     ts.load_visualization('sankey1', wordcount_sankey)
     ts.visualize('sankey1')
+
+    # produce sentiment analysis bar charts for each of the files passed in
     ts.load_visualization('sentiment1', sentiment_analysis_bars, 5, 2)
     ts.visualize('sentiment1')
 
-    # # print out data dictionary
+    # produce boxplot about length of words for each of the files passed in
+    ts.load_visualization('boxplot1', avgwlength_boxplot)
+    ts.visualize('boxplot1')
+
+    # produce bar chart for average length of words
+    ts.load_visualization('barchart1', avgwlength_bar)
+    ts.visualize('barchart1')
+
+    # produce a box plot for length of words for all the files combined
+    ts.load_visualization('totalboxplot1', total_wordl_boxplot)
+    ts.visualize('totalboxplot1')
+
+    # print out data dictionary
     pp.pprint(ts.data)
 
 
