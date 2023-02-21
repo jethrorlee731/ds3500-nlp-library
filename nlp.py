@@ -5,8 +5,6 @@ Core framework class for NLP Comparative Analysis
 from collections import Counter, defaultdict
 import nltk
 from nltk.corpus import stopwords
-import io
-from nltk.tokenize import word_tokenize
 import nlp_parsers as nlp_par
 from exception import ParserError
 

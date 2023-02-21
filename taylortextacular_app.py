@@ -3,17 +3,13 @@
 from collections import defaultdict
 from nlp import Nlp
 import pprint as pp
-import nlp_parsers as npar
 import matplotlib.pyplot as plt
 import sankey as sk
 import pandas as pd
 from exception import ParserError
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
-import numpy as np
-from os import path
-from PIL import Image
-from wordcloud import WordCloud, ImageColorGenerator
+from wordcloud import WordCloud
 
 
 def wordcount_sankey(data, word_list=None, k=5):
