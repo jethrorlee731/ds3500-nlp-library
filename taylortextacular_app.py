@@ -45,21 +45,21 @@ def wordcount_sankey(data, word_list=None, k=5):
         else:
             word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
                                                                 reverse=True) if word in word_list}
-
         # Merges the word count dictionaries of all the registered files
         text_word_count_data['Words'] += list(word_count.keys())
         text_word_count_data['Counts'] += list(word_count.values())
         text_word_count_data['Text'] += [text] * len(word_count.keys())
 
-        # Determines the overall word counts among all the registered file. For instance, if a word appears in two
-        # files, the counts of that word in both of those files are added together in a new dictionary.
-        for i in range(len(text_word_count_data['Words'])):
-            overall_word_count[text_word_count_data['Words'][i]] += text_word_count_data['Counts'][i]
+    # Determines the overall word counts among all the registered files. For instance, if a word appears in two
+    # files, the counts of that word in both of those files are added together in a new dictionary.
+    for i in range(len(text_word_count_data['Words'])):
+        word = text_word_count_data['Words'][i]
+        overall_word_count[word] += text_word_count_data['Counts'][i]
 
     # Sorts the overall word counts in descending order by counts
     overall_word_count = {word: count for word, count in sorted(overall_word_count.items(), key=lambda item: item[1],
                                                                 reverse=True)}
-
+    print(overall_word_count)
     # if a value for k is specified, only the words with the top kth overall counts are shown on the Sankey chart
     if k is not None:
         top_words = list(overall_word_count.keys())[:k]
