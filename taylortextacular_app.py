@@ -27,8 +27,7 @@ def wordcount_sankey(data, word_list=None, k=5):
 
     if word_list is not None:
         assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
-        assert type(all(word for word in word_list)) == str, 'Word list must only contain strings'
-
+        assert all(isinstance(word, str) for word in word_list) == True, 'Word list must only contain strings'
     overall_word_count = defaultdict(lambda: 0)
     word_count_dict = data['wordcount']
     text_word_count_data = {'Text': [], 'Words': [], 'Counts': []}
