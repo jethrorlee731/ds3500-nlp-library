@@ -237,7 +237,7 @@ def total_wordl_boxplot(data):
 
 
 def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, normalize_plurals=True,
-                    subplot_rows=4, subplot_columns=3, max_words=None):
+                    collocations=False, subplot_rows=4, subplot_columns=3, max_words=None):
     """ Creates a word cloud that shows the words in a text, with words that appear more frequently appearing larger
         Args:
             data (dict): data extracted from the file as a dictionary attribute--> raw data
@@ -245,6 +245,7 @@ def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, 
             background_color (string): the color of the word cloud's background
             min_font_size (int): The minimum font size used on the words
             normalize_plurals (boolean): A boolean value indicating whether the trailing "s" in words should be removed
+            collocations (boolean): A boolean value indicating whether bigrams are considered
             subplot_rows (int): the number of rows in the sub-plot
             subplot_columns (int): the number of columns in the sub-plot
             max_words (int): The maximum number of words represented on the word cloud
@@ -261,6 +262,7 @@ def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, 
     assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
     assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
 
+    # initialize empty lists
     texts = []
     word_strings = []
 
@@ -270,7 +272,6 @@ def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, 
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
         words = ''
-        # if a k value is given, restrict the analysis to consider only the k most popular words in each file
         if max_words is not None:
             assert type(max_words) == int, 'The number of words considered from each file for analysis must be an ' \
                                            'integer '
@@ -283,13 +284,14 @@ def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, 
         texts.append(text)
         word_strings.append(words)
 
-    # generates the word cloud for the text in a file
+    # generates the word cloud figure
     plt.figure()
 
     for i in range(len(texts)):
+        # generate a subplot word cloud for each file
         plt.subplot(subplot_rows, subplot_columns, i + 1)
         wordcloud = WordCloud(background_color=background_color, colormap=colormaps[i], min_font_size=min_font_size,
-                              normalize_plurals=normalize_plurals).generate(word_strings[i])
+                              normalize_plurals=normalize_plurals, collocations=collocations).generate(word_strings[i])
 
         plt.imshow(wordcloud, interpolation="bilinear")
         plt.axis("off")
