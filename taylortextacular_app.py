@@ -3,13 +3,17 @@
 from collections import defaultdict
 from nlp import Nlp
 import pprint as pp
-import nlp_parsers as np
+import nlp_parsers as npar
 import matplotlib.pyplot as plt
 import sankey as sk
 import pandas as pd
 from exception import ParserError
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
+import numpy as np
+from os import path
+from PIL import Image
+from wordcloud import WordCloud, ImageColorGenerator
 
 
 def wordcount_sankey(data, word_list=None, k=5):
@@ -146,6 +150,7 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, k=None):
     # display the bar charts
     plt.show()
 
+
 def avgwlength_boxplot(data):
     """ Creates a boxplot of word lengths on one visualization with labels for each of the files, showing distributions
     Citation:
@@ -172,6 +177,7 @@ def avgwlength_boxplot(data):
 
     # make the boxplot show
     plt.show()
+
 
 def avgwlength_bar(data):
     """ Creates a bar chart of the average word length for each of the files
@@ -201,6 +207,7 @@ def avgwlength_bar(data):
     # make the chart show
     plt.show()
 
+
 def total_wordl_boxplot(data):
     """ Create a boxplot that gives distribution of the word length for all the files combined
     Args:
@@ -229,7 +236,83 @@ def total_wordl_boxplot(data):
     plt.show()
 
 
+def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, normalize_plurals=True,
+                    subplot_rows=4, subplot_columns=3, max_words=None):
+    """ Creates a word cloud that shows the words in a text, with words that appear more frequently appearing larger
+        Args:
+            data (dict): data extracted from the file as a dictionary attribute--> raw data
+            colormaps (list of strings): List of color schemes for the words on the diagram
+            background_color (string): the color of the word cloud's background
+            min_font_size (int): The minimum font size used on the words
+            normalize_plurals (boolean): A boolean value indicating whether the trailing "s" in words should be removed
+            subplot_rows (int): the number of rows in the sub-plot
+            subplot_columns (int): the number of columns in the sub-plot
+            max_words (int): The maximum number of words represented on the word cloud
+        Returns:
+            None (just word clouds)
+        """
+    assert type(colormaps) == list, 'The color schemes of the wordcloud must be entered in a list'
+    for colormap in colormaps:
+        assert type(colormap) == str, 'The colormaps for each word cloud must be entered as strings'
+    assert type(background_color) == str, 'The background color of the wordcloud must be entered as a string'
+    assert type(min_font_size) == int, 'The minimum font size of the wordcloud must be entered as an integer'
+    assert type(normalize_plurals) == bool, 'You must indicate whether the plural form of a word should be considered' \
+                                            'the same as its singular form with "True" or "False"'
+    assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
+    assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
+
+    texts = []
+    word_strings = []
+
+    # obtain the word count dictionary of a file
+    word_count_dict = data['wordcount']
+
+    # grab the words from each file and compile them into one string per file
+    for text, word_count in word_count_dict.items():
+        words = ''
+        # if a k value is given, restrict the analysis to consider only the k most popular words in each file
+        if max_words is not None:
+            assert type(max_words) == int, 'The number of words considered from each file for analysis must be an ' \
+                                           'integer '
+            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+                                                                reverse=True)}
+        for word, count in word_count.items():
+            word = (word + ' ') * count
+            words += word
+
+        texts.append(text)
+        word_strings.append(words)
+
+    # generates the word cloud for the text in a file
+    plt.figure()
+
+    for i in range(len(texts)):
+        plt.subplot(subplot_rows, subplot_columns, i + 1)
+        wordcloud = WordCloud(background_color=background_color, colormap=colormaps[i], min_font_size=min_font_size,
+                              normalize_plurals=normalize_plurals).generate(word_strings[i])
+
+        plt.imshow(wordcloud, interpolation="bilinear")
+        plt.axis("off")
+
+        # Each subplot is labeled based on the text they are representing
+        plt.gca().title.set_text('Word Cloud For "' + texts[i] + '"')
+
+    # Gives the plot a title
+    plt.suptitle('Overall Word Counts')
+
+    # resizes the graph to ensure that it can be clearly read
+    plt.gcf().set_size_inches(50, 14)
+
+    # adjusts spacing between graphs
+    plt.subplots_adjust(wspace=.8, hspace=.8)
+
+    # presents the word clouds
+    plt.show()
+
+
 def main():
+    wordcloud_colors = ['summer', 'Wistia', 'Purples', 'Reds', 'Blues', 'bone', 'spring', 'gist_yarg', 'copper',
+                        'gist_stern']
     # download a package needed for sentiment analysis
     nltk.download('vader_lexicon')
 
@@ -240,14 +323,15 @@ def main():
         # register some text files
         ts.load_text('TaylorSwiftOurSong.txt', 'Our Song')
         ts.load_text('TaylorSwiftFearless.txt', 'Fearless')
-        ts.load_text('TaylorSwiftCardigan.txt', 'Cardigan')
         ts.load_text('TaylorSwiftDearJohn.txt', 'Dear John')
-        ts.load_text('TaylorSwiftGetawayCar.txt', 'Getaway Car')
-        ts.load_text('TaylorSwiftLavenderHaze.txt', 'Lavender Haze')
-        ts.load_text('TaylorSwiftLover.txt', 'Lover')
         ts.load_text('TaylorSwiftRed.txt', 'Red')
         ts.load_text('TaylorSwiftWelcometoNewYork.txt', 'Welcome to New York')
+        ts.load_text('TaylorSwiftGetawayCar.txt', 'Getaway Car')
+        ts.load_text('TaylorSwiftLover.txt', 'Lover')
+        ts.load_text('TaylorSwiftCardigan.txt', 'Cardigan')
         ts.load_text('TaylorSwiftWillow.txt', 'Willow')
+        ts.load_text('TaylorSwiftLavenderHaze.txt', 'Lavender Haze')
+
     except ParserError as pe:
         print(str(pe))
 
@@ -270,6 +354,10 @@ def main():
     # produce a box plot for length of words for all the files combined
     ts.load_visualization('totalboxplot1', total_wordl_boxplot)
     ts.visualize('totalboxplot1')
+
+    # produce a box plot for length of words for all the files combined
+    ts.load_visualization('wordcloud1', make_wordclouds, colormaps=wordcloud_colors)
+    ts.visualize('wordcloud1')
 
     # print out data dictionary
     pp.pprint(ts.data)
