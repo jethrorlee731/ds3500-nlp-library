@@ -51,79 +51,84 @@ def wordcount_sankey(data, word_list=None, k=5):
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
     assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
 
-    if word_list is not None:
-        assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
-        assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
-    overall_word_count = defaultdict(lambda: 0)
+    # obtain the word count dictionary of a file
     word_count_dict = data['wordcount']
-    text_word_count_data = {'Text': [], 'Words': [], 'Counts': []}
+
+    # initialize empty lists
+    texts = []
+    all_words = []
+    all_counts = []
 
     for text, word_count in word_count_dict.items():
-        # Creates dictionaries with the word counts of a file. If a word list is specified, only words in that list are
-        # included in the dictionary. The dictionary is sorted in descending order based on the counts.
+        # Sorts the word counts in descending order by counts
+        word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+                                                            reverse=True)}
+        # get a list of only the keys
+        words = list(word_count.keys())
         if word_list is None:
-            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
-                                                                reverse=True)}
+            if k is not None:
+                # get only the top k
+                words = words[:k]
         else:
-            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
-                                                                reverse=True) if word in word_list}
-        # Merges the word count dictionaries of all the registered files
-        text_word_count_data['Words'] += list(word_count.keys())
-        text_word_count_data['Counts'] += list(word_count.values())
-        text_word_count_data['Text'] += [text] * len(word_count.keys())
+            # get only those that are in the word_list
+            words = [word for word in words if word in word_list]
+        counts = list(word_count.values())
+        counts = counts[:k]
+        text = [text] * len(words)
 
-    # Determines the overall word counts among all the registered files. For instance, if a word appears in two
-    # files, the counts of that word in both of those files are added together in a new dictionary.
-    for i in range(len(text_word_count_data['Words'])):
-        word = text_word_count_data['Words'][i]
-        overall_word_count[word] += text_word_count_data['Counts'][i]
+        texts += text
+        all_words += words
+        all_counts += counts
 
-    # Sorts the overall word counts in descending order by counts
-    overall_word_count = {word: count for word, count in sorted(overall_word_count.items(), key=lambda item: item[1],
-                                                                reverse=True)}
-
-    # if a value for k is specified, only the words with the top kth overall counts are shown on the Sankey chart
-    if k is not None:
-        top_words = list(overall_word_count.keys())[:k]
-
-    # Converts the word count dictionary into a Pandas dataframe. The words are filtered based on their popularity,
-    # if necessary
-    df_word_counts = pd.DataFrame.from_dict(text_word_count_data)
-    df_word_counts = df_word_counts[df_word_counts['Words'].isin(top_words)]
-
-    # Makes the Sankey diagram connecting texts to words, where the thickness of a line is the number of times that word
-    # occurs in the text it's linked with
-    sk.make_sankey(df_word_counts, 0, 'Text', 'Words', vals=df_word_counts['Counts'])
+    word_count = list(zip(all_words, all_counts, texts))
+    df_word_counts = pd.DataFrame(word_count, columns=['Word', 'Counts', 'Text'])
+    print(df_word_counts)
+    sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
 
     ##################################################################################################################
+    # if word_list is not None:
+    #     assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
+    #     assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
+    # overall_word_count = defaultdict(lambda: 0)
     # word_count_dict = data['wordcount']
-    #
-    # texts = []
-    # all_words = []
-    # all_counts = []
+    # text_word_count_data = {'Text': [], 'Words': [], 'Counts': []}
     #
     # for text, word_count in word_count_dict.items():
-    #     word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
-    #                                                         reverse=True)}
-    #     words = list(word_count.keys())
+    #     # Creates dictionaries with the word counts of a file. If a word list is specified, only words in that list are
+    #     # included in the dictionary. The dictionary is sorted in descending order based on the counts.
     #     if word_list is None:
-    #         if k is not None:
-    #             words = words[:k + 1]
+    #         word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+    #                                                             reverse=True)}
     #     else:
-    #         words = [word for word in words if word in word_list]
-    #     counts = list(word_count.values())
-    #     counts = counts[:k + 1]
-    #     text = [text] * len(words)
+    #         word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+    #                                                             reverse=True) if word in word_list}
+    #     # Merges the word count dictionaries of all the registered files
+    #     text_word_count_data['Words'] += list(word_count.keys())
+    #     text_word_count_data['Counts'] += list(word_count.values())
+    #     text_word_count_data['Text'] += [text] * len(word_count.keys())
     #
-    #     texts += text
-    #     all_words += words
-    #     all_counts += counts
+    # # Determines the overall word counts among all the registered files. For instance, if a word appears in two
+    # # files, the counts of that word in both of those files are added together in a new dictionary.
+    # for i in range(len(text_word_count_data['Words'])):
+    #     word = text_word_count_data['Words'][i]
+    #     overall_word_count[word] += text_word_count_data['Counts'][i]
     #
-    # word_count = list(zip(all_words, all_counts, texts))
-    # df_word_counts = pd.DataFrame(word_count, columns=['Word', 'Counts', 'Text'])
-    # print(df_word_counts)
-    # sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
-
+    # # Sorts the overall word counts in descending order by counts
+    # overall_word_count = {word: count for word, count in sorted(overall_word_count.items(), key=lambda item: item[1],
+    #                                                             reverse=True)}
+    #
+    # # if a value for k is specified, only the words with the top kth overall counts are shown on the Sankey chart
+    # if k is not None:
+    #     top_words = list(overall_word_count.keys())[:k]
+    #
+    # # Converts the word count dictionary into a Pandas dataframe. The words are filtered based on their popularity,
+    # # if necessary
+    # df_word_counts = pd.DataFrame.from_dict(text_word_count_data)
+    # df_word_counts = df_word_counts[df_word_counts['Words'].isin(top_words)]
+    #
+    # # Makes the Sankey diagram connecting texts to words, where the thickness of a line is the number of times that word
+    # # occurs in the text it's linked with
+    # sk.make_sankey(df_word_counts, 0, 'Text', 'Words', vals=df_word_counts['Counts'])
 
 def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=None):
     # Citation: https://realpython.com/python-nltk-sentiment-analysis/
