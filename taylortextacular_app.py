@@ -78,7 +78,7 @@ def wordcount_sankey(data, word_list=None, k=5):
     # Sorts the overall word counts in descending order by counts
     overall_word_count = {word: count for word, count in sorted(overall_word_count.items(), key=lambda item: item[1],
                                                                 reverse=True)}
-    print(overall_word_count)
+
     # if a value for k is specified, only the words with the top kth overall counts are shown on the Sankey chart
     if k is not None:
         top_words = list(overall_word_count.keys())[:k]
@@ -91,6 +91,35 @@ def wordcount_sankey(data, word_list=None, k=5):
     # Makes the Sankey diagram connecting texts to words, where the thickness of a line is the number of times that word
     # occurs in the text it's linked with
     sk.make_sankey(df_word_counts, 0, 'Text', 'Words', vals=df_word_counts['Counts'])
+
+    ##################################################################################################################
+    # word_count_dict = data['wordcount']
+    #
+    # texts = []
+    # all_words = []
+    # all_counts = []
+    #
+    # for text, word_count in word_count_dict.items():
+    #     word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+    #                                                         reverse=True)}
+    #     words = list(word_count.keys())
+    #     if word_list is None:
+    #         if k is not None:
+    #             words = words[:k + 1]
+    #     else:
+    #         words = [word for word in words if word in word_list]
+    #     counts = list(word_count.values())
+    #     counts = counts[:k + 1]
+    #     text = [text] * len(words)
+    #
+    #     texts += text
+    #     all_words += words
+    #     all_counts += counts
+    #
+    # word_count = list(zip(all_words, all_counts, texts))
+    # df_word_counts = pd.DataFrame(word_count, columns=['Word', 'Counts', 'Text'])
+    # print(df_word_counts)
+    # sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
 
 
 def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=None):
@@ -109,6 +138,7 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
     assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
 
+    # initialize empty lists
     texts = []
     sentiment_distributions = []
 
@@ -120,7 +150,21 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
 
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
+<<<<<<< HEAD
         words = convert_file_to_string(word_count, max_words=max_words)
+=======
+        words = ''
+        # WHY ARE YOU TRYING TO FIND THE K MOST POPULAR WORDS HERE. DON'T THINK IT IS NECESSARY?
+        # if a k value is given, restrict the analysis to consider only the k most popular words in each file
+        if k is not None:
+            assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
+            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+                                                                reverse=True)}
+            word_count = dict(word_count.items()[:k])
+        for word, count in word_count.items():
+            word = (word + ' ') * count
+            words += word
+>>>>>>> cdabb2bb4acb7976c7778f932421ad1ae9fe268e
 
         # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
         # dictionary
@@ -171,6 +215,9 @@ def avgwlength_boxplot(data):
     Returns:
         None (boxplot in one visualization of all the files)
     """
+    # Exception handling for the given parameters
+    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
+
     # obtain the word length dictionary
     word_length_dict = data['wordlengthlist']
 
@@ -199,6 +246,9 @@ def avgwlength_bar(data):
     Returns:
         None (just a bar chart)
     """
+    # Exception handling for the given parameters
+    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
+
     # obtain the avg word length dictionary
     avg_wordl_dict = data['avgwordlength']
 
@@ -228,6 +278,9 @@ def total_wordl_boxplot(data):
     Returns:
         None (just a boxplot)
     """
+    # Exception handling for the given parameters
+    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
+
     # obtain the word length list dictionary
     word_length_dict = data['wordlengthlist']
 
