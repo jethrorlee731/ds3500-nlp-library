@@ -211,8 +211,8 @@ def avgwlength_boxplot(data):
     word_length_dict = data['wordlengthlist']
 
     # set the figure size
-    plt.rcParams["figure.figsize"] = [7.50, 3.50]
-    plt.rcParams["figure.autolayout"] = True
+    plt.rcParams['figure.figsize'] = [7.50, 3.50]
+    plt.rcParams['figure.autolayout'] = True
 
     # create a figure with the subplots
     fig, ax = plt.subplots()
@@ -246,8 +246,8 @@ def avgwlength_bar(data):
     value = list(avg_wordl_dict.values())
 
     # set the figure size
-    plt.rcParams["figure.figsize"] = [7.50, 3.50]
-    plt.rcParams["figure.autolayout"] = True
+    plt.rcParams['figure.figsize'] = [7.50, 3.50]
+    plt.rcParams['figure.autolayout'] = True
 
     # plot the bar chart, style the x ticks, label the axes and title
     plt.bar(range(len(avg_wordl_dict)), value, tick_label=label)
@@ -280,12 +280,12 @@ def total_wordl_boxplot(data):
     total_wl_list = [item for sublist in total_wl_list for item in sublist]
 
     # set the figure size
-    fig = plt.figure(figsize=(10, 7))
+    plt.figure(figsize=(10, 7))
 
     # create the box plot, set the axes and title
     plt.boxplot(total_wl_list)
-    plt.ylabel("Word Length")
-    plt.title("Word Length Distribution for All Files Combined")
+    plt.ylabel('Word Length')
+    plt.title('Word Length Distribution for All Files Combined')
 
     # show plot
     plt.show()
@@ -299,7 +299,7 @@ def make_wordclouds(data, colormaps=None, background_color='black', min_font_siz
             colormaps (list of strings): List of color schemes for the words on the diagram
             background_color (string): the color of the word cloud's background
             min_font_size (int): The minimum font size used on the words
-            normalize_plurals (boolean): A boolean value indicating whether the trailing "s" in words should be removed
+            normalize_plurals (boolean): A boolean value indicating whether the trailing 's' in words should be removed
             collocations (boolean): A boolean value indicating whether bigrams are considered
             subplot_rows (int): the number of rows in the sub-plot
             subplot_columns (int): the number of columns in the sub-plot
@@ -316,7 +316,7 @@ def make_wordclouds(data, colormaps=None, background_color='black', min_font_siz
     assert type(min_font_size) == int, 'The minimum font size of the wordcloud must be entered as an integer'
     assert type(normalize_plurals) == bool, 'You must indicate whether the plural form of a word should be considered' \
                                             'the same as its singular form with "True" or "False"'
-    assert type(collocations) == bool, "You must indicate whether bigrams are considered with 'True' or 'False'"
+    assert type(collocations) == bool, 'You must indicate whether bigrams are considered with "True" or "False"'
     assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
     assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
 
@@ -347,8 +347,8 @@ def make_wordclouds(data, colormaps=None, background_color='black', min_font_siz
         wordcloud = WordCloud(background_color=background_color, colormap=colormaps[i], min_font_size=min_font_size,
                               normalize_plurals=normalize_plurals, collocations=collocations).generate(word_strings[i])
 
-        plt.imshow(wordcloud, interpolation="bilinear")
-        plt.axis("off")
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')
 
         # Each subplot is labeled based on the text they are representing
         plt.gca().title.set_text('Word Cloud For "' + texts[i] + '"')

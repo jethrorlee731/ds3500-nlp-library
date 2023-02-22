@@ -59,8 +59,8 @@ class Nlp:
         except Exception as e:
             raise DataResultsError(clean_words, str(e))
         else:
-            print("Dictionary containing the word frequencies, overall word count, world length list, and average"
-                  "word lengths successfully created")
+            print('Dictionary containing the word frequencies, overall word count, world length list, and average'
+                  'word lengths successfully created')
             return results
 
     @staticmethod
@@ -98,8 +98,8 @@ class Nlp:
             results (dict): key being what data collected and value being the data
         """
         # Exception handling for the given parameters
-        assert filename[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
-                                                        '.txt, .json'
+        assert filename[-3:] in ('csv', 'txt', 'son', 'lsx'), 'File type not supported. Only these are supported: ' \
+                                                              '.csv, .txt, .json, .excel '
         assert type(filename) == str, 'File must be inputted as a string'
 
         try:
@@ -116,7 +116,7 @@ class Nlp:
             for row in rows_of_text:
                 # remove all break lines
                 row = row.replace('\n', '')
-                # remove all instances of "\u2005"
+                # remove all instances of '\u2005'
                 row = row.replace('\u2005', '')
                 # separate the words from each row in the txt file
                 row_words = row.split(' ')
@@ -124,7 +124,7 @@ class Nlp:
                 for word in row_words:
                     # change all letters to lower case
                     word = word.lower()
-                    # filter out blank words and possible non-words (e.g., "words" that start with a number)
+                    # filter out blank words and possible non-words (e.g., 'words' that start with a number)
                     if word != '' and word[0].isalpha():
                         # remove punctuation from the end of words
                         while not word[-1].isalpha():
@@ -210,9 +210,9 @@ class Nlp:
                 nltk.download('stopwords')
                 stop_words = list(stopwords.words('english'))
             else:
-                #assert stopfile[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
-                #                                                '.txt, .json'
-                #assert type(stopfile) == str, 'File must be inputted as a string'
+                assert stopfile[-3:] in ('csv', 'txt', 'son', 'lsx'), \
+                    'File type not supported. Only these are supported: .csv, .txt, .json, .excel'
+                assert type(stopfile) == str, 'File must be inputted as a string'
                 stop_words = []
 
                 if parser is None:
@@ -253,7 +253,7 @@ class Nlp:
             name (str): optional parameter for name of visualization
         """
         try:
-        # run all the visualizations
+            # run all the visualizations
             if name is None:
                 for _, v in self.viz.items():
                     vizfunc, args, kwargs = v

@@ -47,7 +47,7 @@ def csv_parser(filename, text_column):
 
 
 def excel_parser(filename, text_column):
-    """ Read in an excel file and turn the words in the text_column into a 1d list
+    """ Read in an Excel file and turn the words in the text_column into a 1d list
     Args:
         filename (str): name of interested csv filename
         text_column (str): name of interested column from the file
