@@ -1,5 +1,5 @@
 class ParserError(Exception):
-    """ A user-defined exception for signalling parser
+    """ A user-defined exception for signaling parser
     error issue"""
 
     def __init__(self, filename, label=None, parser=None, msg=''):

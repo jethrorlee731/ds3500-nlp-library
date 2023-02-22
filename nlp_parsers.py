@@ -1,4 +1,6 @@
-""" BRIEF EXPLANATION OF THIS FILE """
+"""
+nlp_parsers.py: A collection of parsers
+"""
 import json
 import csv
 from collections import Counter
