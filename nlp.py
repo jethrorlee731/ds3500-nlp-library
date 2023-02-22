@@ -145,7 +145,7 @@ class Nlp:
             parser(str): optional type of parser to be used
         """
         # Exception handling for the given parameters
-        assert filename[-3:] in ('csv', 'txt', 'json', '.xlsx'), \
+        assert filename[-3:] in ('csv', 'txt', 'son', 'lsx'), \
             'File type not supported. Only these are supported: .csv, .txt, .json, .excel'
         assert type(filename) == str, 'File must be inputted as a string'
 
