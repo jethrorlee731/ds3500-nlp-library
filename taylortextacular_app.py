@@ -1,4 +1,7 @@
-""" BRIEF EXPLANATION OF THIS FILE """
+"""
+taylortextacular_app.py: main file to run the nlp loading of dataset as well as loading of visualizations specified
+by specific user-defined functions in the file
+"""
 
 from collections import defaultdict
 from nlp import Nlp

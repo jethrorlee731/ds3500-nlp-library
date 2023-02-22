@@ -1,3 +1,6 @@
+"""
+exception.py: ParserError class as a framework-specific exception class
+"""
 class ParserError(Exception):
     """ A user-defined exception for signalling parser
     error issue"""

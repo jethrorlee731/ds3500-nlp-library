@@ -1,5 +1,5 @@
 """
-Core framework class for NLP Comparative Analysis
+nlp.py: Core framework class for NLP Comparative Analysis
 
 """
 from collections import Counter, defaultdict
@@ -145,8 +145,8 @@ class Nlp:
             parser(str): optional type of parser to be used
         """
         # Exception handling for the given parameters
-        assert filename[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
-                                                        '.txt, .json'
+        assert filename[-3:] in ('csv', 'txt', 'json', '.xlsx'), \
+            'File type not supported. Only these are supported: .csv, .txt, .json, .excel'
         assert type(filename) == str, 'File must be inputted as a string'
 
         if label is not None:
