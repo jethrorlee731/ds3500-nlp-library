@@ -15,6 +15,29 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from wordcloud import WordCloud
 
 
+def convert_file_to_string(word_count, max_words=None):
+    """ Extracts the words from a file and compiles them into one sting
+    Args:
+        word_count (dict): contains the words in a file (key) and their frequencies (value)
+        max_words (int): the number of words considered from each file for analysis, based on their frequencies
+    """
+    words = ''
+    # if a k value is given, restrict the analysis to consider only the k most popular words in each file
+    if max_words is not None:
+        assert type(max_words) == int, 'The number of words considered from each file for analysis must be an integer'
+        word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+                                                            reverse=True)}
+        word_count = dict(word_count.items()[:max_words])
+    for word, count in word_count.items():
+        # Extract each word in the word count dictionary and repeat them in the returned string based on their
+        # frequency in the file
+        word = (word + ' ') * count
+        words += word
+
+    # return the string
+    return words
+
+
 def wordcount_sankey(data, word_list=None, k=5):
     """ Maps each text to words on a Sankey diagram, where the thickness of the line is the frequency of that word
     Args:
@@ -102,14 +125,14 @@ def wordcount_sankey(data, word_list=None, k=5):
     # sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
 
 
-def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, k=None):
+def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=None):
     # Citation: https://realpython.com/python-nltk-sentiment-analysis/
     """ Creates a bar chart for each file representing their overall sentiments
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
         subplot_rows (int): the number of rows in the sub-plot
         subplot_columns (int): the number of columns in the sub-plot
-        k (int): the number of words considered from each file for analysis, based on their frequencies
+        max_words (int): the number of words considered from each file for analysis, based on their frequencies
     Returns:
         None (just bar charts!)
     """
@@ -130,6 +153,7 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, k=None):
 
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
+        words = convert_file_to_string(word_count, max_words=max_words)
         words = ''
         # WHY ARE YOU TRYING TO FIND THE K MOST POPULAR WORDS HERE. DON'T THINK IT IS NECESSARY?
         # if a k value is given, restrict the analysis to consider only the k most popular words in each file
@@ -207,6 +231,9 @@ def avgwlength_boxplot(data):
     # plot the boxplot with labels
     ax.boxplot(word_length_dict.values())
     ax.set_xticklabels(word_length_dict.keys(), rotation=90, fontsize=5)
+    plt.xlabel('Name of Song')
+    plt.ylabel('Average Word Length Distributions')
+    plt.title('Average Word Length Distributions for the Different Songs')
 
     # make the boxplot show
     plt.show()
@@ -275,7 +302,7 @@ def total_wordl_boxplot(data):
     plt.show()
 
 
-def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, normalize_plurals=True,
+def make_wordclouds(data, colormaps=None, background_color='black', min_font_size=4, normalize_plurals=True,
                     collocations=False, subplot_rows=4, subplot_columns=3, max_words=None):
     """ Creates a word cloud that shows the words in a text, with words that appear more frequently appearing larger
         Args:
@@ -291,13 +318,16 @@ def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, 
         Returns:
             None (just word clouds)
         """
-    assert type(colormaps) == list, 'The color schemes of the wordcloud must be entered in a list'
-    for colormap in colormaps:
-        assert type(colormap) == str, 'The colormaps for each word cloud must be entered as strings'
+    # Assertion statements for input parameters
+    if colormaps is not None:
+        assert type(colormaps) == list, 'The color schemes of the wordcloud must be entered in a list'
+        for colormap in colormaps:
+            assert type(colormap) == str, 'The colormaps for each word cloud must be entered as strings'
     assert type(background_color) == str, 'The background color of the wordcloud must be entered as a string'
     assert type(min_font_size) == int, 'The minimum font size of the wordcloud must be entered as an integer'
     assert type(normalize_plurals) == bool, 'You must indicate whether the plural form of a word should be considered' \
                                             'the same as its singular form with "True" or "False"'
+    assert type(collocations) == bool, "You must indicate whether bigrams are considered with 'True' or 'False'"
     assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
     assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
 
@@ -310,21 +340,17 @@ def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, 
 
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
-        words = ''
-        if max_words is not None:
-            assert type(max_words) == int, 'The number of words considered from each file for analysis must be an ' \
-                                           'integer '
-            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
-                                                                reverse=True)}
-        for word, count in word_count.items():
-            word = (word + ' ') * count
-            words += word
+        words = convert_file_to_string(word_count, max_words=max_words)
 
         texts.append(text)
         word_strings.append(words)
 
     # generates the word cloud figure
     plt.figure()
+
+    # defines the default colormap
+    if colormaps is None:
+        colormaps = ['viridis'] * len(texts)
 
     for i in range(len(texts)):
         # generate a subplot word cloud for each file
@@ -352,8 +378,8 @@ def make_wordclouds(data, colormaps, background_color='black', min_font_size=4, 
 
 
 def main():
-    wordcloud_colors = ['summer', 'Wistia', 'Purples', 'Reds', 'Blues', 'bone', 'spring', 'gist_yarg', 'copper',
-                        'gist_stern']
+    wordcloud_colors = ['summer', 'Wistia', 'Purples', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
+                        'BuPu']
     # download a package needed for sentiment analysis
     nltk.download('vader_lexicon')
 
