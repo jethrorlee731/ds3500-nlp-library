@@ -3,6 +3,7 @@ nlp_parsers.py: json, csv, and excel parsers to get the interested column from t
 """
 import pandas as pd
 
+
 def json_parser(filename, text_column):
     """ Read in a json file and turn the words in the text_column into a 1d list
     Args:
@@ -43,6 +44,7 @@ def csv_parser(filename, text_column):
     words_list = list(df_text)
 
     return words_list
+
 
 def excel_parser(filename, text_column):
     """ Read in an excel file and turn the words in the text_column into a 1d list

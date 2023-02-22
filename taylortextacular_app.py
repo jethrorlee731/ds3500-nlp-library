@@ -9,7 +9,7 @@ import pprint as pp
 import matplotlib.pyplot as plt
 import sankey as sk
 import pandas as pd
-from exception import ParserError
+from exception import LoadStopWordError
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from wordcloud import WordCloud
@@ -53,7 +53,7 @@ def wordcount_sankey(data, word_list=None, k=5):
 
     if word_list is not None:
         assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
-        assert all(isinstance(word, str) for word in word_list) == True, 'Word list must only contain strings'
+        assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
     overall_word_count = defaultdict(lambda: 0)
     word_count_dict = data['wordcount']
     text_word_count_data = {'Text': [], 'Words': [], 'Counts': []}
@@ -154,17 +154,6 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
         words = convert_file_to_string(word_count, max_words=max_words)
-        words = ''
-        # WHY ARE YOU TRYING TO FIND THE K MOST POPULAR WORDS HERE. DON'T THINK IT IS NECESSARY?
-        # if a k value is given, restrict the analysis to consider only the k most popular words in each file
-        if k is not None:
-            assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
-            word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
-                                                                reverse=True)}
-            word_count = dict(word_count.items()[:k])
-        for word, count in word_count.items():
-            word = (word + ' ') * count
-            words += word
 
         # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
         # dictionary
@@ -378,8 +367,8 @@ def make_wordclouds(data, colormaps=None, background_color='black', min_font_siz
 
 
 def main():
-    wordcloud_colors = ['summer', 'Wistia', 'Purples', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
-                        'BuPu']
+    wordcloud_colors = ['summer', 'Wistia', 'BuPu', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
+                        'Purples']
     # download a package needed for sentiment analysis
     nltk.download('vader_lexicon')
 
@@ -399,7 +388,7 @@ def main():
         ts.load_text('TaylorSwiftWillow.txt', 'Willow')
         ts.load_text('TaylorSwiftLavenderHaze.txt', 'Lavender Haze')
 
-    except ParserError as pe:
+    except LoadStopWordError as pe:
         print(str(pe))
 
     # produce sankey diagram with the passed in files

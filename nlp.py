@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 import nltk
 from nltk.corpus import stopwords
 import nlp_parsers as nlp_par
-from exception import ParserError
+from exception import *
 
 
 class Nlp:
@@ -34,28 +34,34 @@ class Nlp:
         for word in clean_words:
             assert type(word) == str, 'Clean word list must only contain strings before getting used'
 
-        # set length equal to 0
-        length = 0
-        for word in clean_words:
-            # add length of word to length variable
-            length += len(word)
-        # compute average word length
-        avg_wl = length / len(clean_words)
+        try:
+            # set length equal to 0
+            length = 0
+            for word in clean_words:
+                # add length of word to length variable
+                length += len(word)
+            # compute average word length
+            avg_wl = length / len(clean_words)
 
-        # initialize empty list
-        word_length_list = []
-        for word in clean_words:
-            # append length of word to the new list
-            word_length_list.append(len(word))
+            # initialize empty list
+            word_length_list = []
+            for word in clean_words:
+                # append length of word to the new list
+                word_length_list.append(len(word))
 
-        # create a dictionary with the frequency of each unique word in a file as well as the word count of the file
-        results = {
-            'wordcount': Counter(clean_words),
-            'numwords': len(clean_words),
-            'wordlengthlist': word_length_list,
-            'avgwordlength': avg_wl
-        }
-        return results
+            # create a dictionary with the frequency of each unique word in a file as well as the word count of the file
+            results = {
+                'wordcount': Counter(clean_words),
+                'numwords': len(clean_words),
+                'wordlengthlist': word_length_list,
+                'avgwordlength': avg_wl
+            }
+        except Exception as e:
+            raise DataResultsError(clean_words, str(e))
+        else:
+            print("Dictionary containing the word frequencies, overall word count, world length list, and average"
+                  "word lengths successfully created")
+            return results
 
     @staticmethod
     def _filter_stopwords(words):
@@ -69,13 +75,18 @@ class Nlp:
         for word in words:
             assert type(word) == str, 'Word list must only contain strings before getting filtered'
 
-        # load the stop words
-        stop_words = Nlp._load_stop_words()
+        try:
+            # load the stop words
+            stop_words = Nlp._load_stop_words()
 
-        # make all the letters lower case and filter out the file's stop words
-        # Citation: https://realpython.com/python-nltk-sentiment-analysis/
-        clean_words = [word.lower() for word in words if word.lower() not in stop_words]
-        return clean_words
+            # make all the letters lower case and filter out the file's stop words
+            # Citation: https://realpython.com/python-nltk-sentiment-analysis/
+            clean_words = [word.lower() for word in words if word.lower() not in stop_words]
+        except Exception as e:
+            raise StopWordError(words, str(e))
+        else:
+            print('Stop words successfully filtered out')
+            return clean_words
 
     @staticmethod
     def _default_parser(filename):
@@ -91,37 +102,42 @@ class Nlp:
                                                         '.txt, .json'
         assert type(filename) == str, 'File must be inputted as a string'
 
-        # initialize empty list to store words
-        words = []
+        try:
+            # initialize empty list to store words
+            words = []
 
-        # open and read the interested file
-        text_file = open(filename, 'r')
-        rows_of_text = text_file.readlines()
+            # open and read the interested file
+            text_file = open(filename, 'r')
+            rows_of_text = text_file.readlines()
 
-        # break the file into words
+            # break the file into words
 
-        # filtering the file
-        for row in rows_of_text:
-            # remove all break lines
-            row = row.replace('\n', '')
-            # remove all instances of "\u2005"
-            row = row.replace('\u2005', '')
-            # separate the words from each row in the txt file
-            row_words = row.split(' ')
+            # filtering the file
+            for row in rows_of_text:
+                # remove all break lines
+                row = row.replace('\n', '')
+                # remove all instances of "\u2005"
+                row = row.replace('\u2005', '')
+                # separate the words from each row in the txt file
+                row_words = row.split(' ')
 
-            for word in row_words:
-                # change all letters to lower case
-                word = word.lower()
-                # filter out blank words and possible non-words (e.g., "words" that start with a number)
-                if word != '' and word[0].isalpha():
-                    # remove punctuation from the end of words
-                    while not word[-1].isalpha():
-                        word = word[:-1]
-                    words.append(word)
+                for word in row_words:
+                    # change all letters to lower case
+                    word = word.lower()
+                    # filter out blank words and possible non-words (e.g., "words" that start with a number)
+                    if word != '' and word[0].isalpha():
+                        # remove punctuation from the end of words
+                        while not word[-1].isalpha():
+                            word = word[:-1]
+                        words.append(word)
 
-        # close the file
-        text_file.close()
-        return words
+            # close the file
+            text_file.close()
+        except Exception as e:
+            raise DefaultParsingError(filename, str(e))
+        else:
+            print('File is successfully parsed')
+            return words
 
     def _save_results(self, label, results):
         """ Integrate parsing results into internal state
@@ -133,8 +149,11 @@ class Nlp:
         assert type(label) == str, 'Label for the text file must be a string'
         assert type(results) == dict, 'The data extracted from this file must be stored in a dictionary'
 
-        for k, v in results.items():
-            self.data[k][label] = v
+        try:
+            for k, v in results.items():
+                self.data[k][label] = v
+        except Exception as e:
+            raise SaveResultsError(label, str(e))
 
     def load_text(self, filename, label=None, parser=None):
         """ Register a document with the framework
@@ -166,18 +185,15 @@ class Nlp:
                     clean_words = Nlp._filter_stopwords(words)
                     results = Nlp._data_results(clean_words)
         except Exception as e:
-            raise ParserError(filename, str(e))
+            raise LoadStopWordError(filename, str(e))
 
         else:
-            print('File is successfully parsed')
+            print('Document is successfully registered')
             if label is None:
                 label = filename
 
             # Save/integrate the data we extracted from the file into the internal state of the framework
             self._save_results(label, results)
-
-        finally:
-            print('CLOSING CONNECTION')
 
     @staticmethod
     # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
@@ -189,24 +205,28 @@ class Nlp:
         Returns:
             stop_words (list): list of stopwords based on NLTK library
         """
-        if stopfile is None:
-            nltk.download('stopwords')
-            stop_words = list(stopwords.words('english'))
-        else:
-            #assert stopfile[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
-            #                                                '.txt, .json'
-            #assert type(stopfile) == str, 'File must be inputted as a string'
-            stop_words = []
-
-            if parser is None:
-                stop_words = Nlp._default_parser(stopfile)
-
+        try:
+            if stopfile is None:
+                nltk.download('stopwords')
+                stop_words = list(stopwords.words('english'))
             else:
-                assert type(parser) == str, 'Parser must be inputted as a string'
-                # Perform parsing
-                pass
+                #assert stopfile[-3:] in ('csv', 'txt', 'json'), 'File type not supported. Only these are supported: .csv, ' \
+                #                                                '.txt, .json'
+                #assert type(stopfile) == str, 'File must be inputted as a string'
+                stop_words = []
 
-        return stop_words
+                if parser is None:
+                    stop_words = Nlp._default_parser(stopfile)
+
+                else:
+                    assert type(parser) == str, 'Parser must be inputted as a string'
+                    # Perform parsing
+                    pass
+        except Exception as e:
+            raise LoadStopWordError(stopfile, str(e))
+        else:
+            print('Stop words successfully loaded')
+            return stop_words
 
     def load_visualization(self, name, vizfunc, *args, **kwargs):
         """ Integrate visualization into internal state
@@ -219,7 +239,12 @@ class Nlp:
         """
         assert type(name) == str, 'The name of the visualization must be a string'
         assert (callable(vizfunc)), 'You must input a callable function to execute the visualization'
-        self.viz[name] = (vizfunc, args, kwargs)
+        try:
+            self.viz[name] = (vizfunc, args, kwargs)
+        except Exception as e:
+            raise LoadVisualizationError(vizfunc, str(e))
+        else:
+            print('Visualization is successfully integrated into the internal state')
 
     def visualize(self, name=None):
         """ Call the vizfunc to plot the visualization
@@ -227,13 +252,18 @@ class Nlp:
         Args:
             name (str): optional parameter for name of visualization
         """
-        # run all
-        if name is None:
-            for _, v in self.viz.items():
-                vizfunc, args, kwargs = v
+        try:
+        # run all the visualizations
+            if name is None:
+                for _, v in self.viz.items():
+                    vizfunc, args, kwargs = v
+                    vizfunc(self.data, *args, **kwargs)
+            else:
+                # run only the named visualization
+                assert type(name) == str, 'The name of the visualization must be a string'
+                vizfunc, args, kwargs = self.viz[name]
                 vizfunc(self.data, *args, **kwargs)
+        except Exception as e:
+            raise VisualizeError(name, str(e))
         else:
-            # run only the named visualization
-            assert type(name) == str, 'The name of the visualization must be a string'
-            vizfunc, args, kwargs = self.viz[name]
-            vizfunc(self.data, *args, **kwargs)
+            print('Visualization successfully plotted')
