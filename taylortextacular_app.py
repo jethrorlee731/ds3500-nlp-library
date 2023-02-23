@@ -230,20 +230,22 @@ def sentiment_scatter(data, max_words=None):
         sentiment_distribution = sia.polarity_scores(words)
         pos_score = sentiment_distribution['pos']
         neg_score = sentiment_distribution['neg']
-        # print(pos_score)
         # store the names of the files as well as its sentiment distribution dictionaries
         texts.append(text)
         positive_distributions.append(pos_score)
         negative_distributions.append(neg_score)
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(20, 10))
     ax.scatter(positive_distributions, negative_distributions)
 
     for i, txt in enumerate(texts):
         ax.annotate(txt, (positive_distributions[i], negative_distributions[i]))
 
-    plt.legend(bbox_to_anchor=(1, 1))
- 
+
+    plt.xlabel('Positive Score')
+    plt.ylabel('Negative Score')
+    plt.title('Negative vs Positive Score of Different Songs')
+    plt.show()
 
 def avgwlength_boxplot(data):
     """ Creates a boxplot of word lengths on one visualization with labels for each of the files, showing distributions
@@ -442,29 +444,29 @@ def main():
     except LoadStopWordError as pe:
         print(str(pe))
 
-    # # produce sankey diagram with the passed in files
-    # ts.load_visualization('sankey1', wordcount_sankey)
-    # ts.visualize('sankey1')
-    #
-    # # produce sentiment analysis bar charts for each of the files passed in
-    # ts.load_visualization('sentiment1', sentiment_analysis_bars, 5, 2)
-    # ts.visualize('sentiment1')
-    #
-    # # produce boxplot about length of words for each of the files passed in
-    # ts.load_visualization('boxplot1', avgwlength_boxplot)
-    # ts.visualize('boxplot1')
-    #
-    # # produce bar chart for average length of words
-    # ts.load_visualization('barchart1', avgwlength_bar)
-    # ts.visualize('barchart1')
-    #
-    # # produce a box plot for length of words for all the files combined
-    # ts.load_visualization('totalboxplot1', total_wordl_boxplot)
-    # ts.visualize('totalboxplot1')
+    # produce sankey diagram with the passed in files
+    ts.load_visualization('sankey1', wordcount_sankey)
+    ts.visualize('sankey1')
 
-    # # produce a box plot for length of words for all the files combined
-    # ts.load_visualization('wordcloud1', make_wordclouds, colormaps=wordcloud_colors)
-    # ts.visualize('wordcloud1')
+    # produce sentiment analysis bar charts for each of the files passed in
+    ts.load_visualization('sentiment1', sentiment_analysis_bars, 5, 2)
+    ts.visualize('sentiment1')
+
+    # produce boxplot about length of words for each of the files passed in
+    ts.load_visualization('boxplot1', avgwlength_boxplot)
+    ts.visualize('boxplot1')
+
+    # produce bar chart for average length of words
+    ts.load_visualization('barchart1', avgwlength_bar)
+    ts.visualize('barchart1')
+
+    # produce a box plot for length of words for all the files combined
+    ts.load_visualization('totalboxplot1', total_wordl_boxplot)
+    ts.visualize('totalboxplot1')
+
+    # produce a box plot for length of words for all the files combined
+    ts.load_visualization('wordcloud1', make_wordclouds, colormaps=wordcloud_colors)
+    ts.visualize('wordcloud1')
 
     ts.load_visualization('sentimentscatter', sentiment_scatter)
     ts.visualize('sentimentscatter')
