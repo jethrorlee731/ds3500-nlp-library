@@ -22,7 +22,8 @@ def convert_file_to_string(word_count, max_words=None):
         max_words (int): the number of words considered from each file for analysis, based on their frequencies
     """
     words = ''
-    # if a k value is given, restrict the analysis to consider only the k most popular words in each file
+    # if max_words is given, restrict the analysis to consider only the max_words number of
+    # most popular words in each file
     if max_words is not None:
         assert type(max_words) == int, 'The number of words considered from each file for analysis must be an integer'
         word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
@@ -50,6 +51,9 @@ def wordcount_sankey(data, word_list=None, k=5):
     # Exception handling for the given parameters
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
     assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
+    if word_list is not None:
+        assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
+        assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
 
     # obtain the word count dictionary of a file
     word_count_dict = data['wordcount']
@@ -82,10 +86,9 @@ def wordcount_sankey(data, word_list=None, k=5):
 
     word_count = list(zip(all_words, all_counts, texts))
     df_word_counts = pd.DataFrame(word_count, columns=['Word', 'Counts', 'Text'])
-    print(df_word_counts)
     sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
 
-    ##################################################################################################################
+    ####################################################################################################################
     # if word_list is not None:
     #     assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
     #     assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
@@ -130,6 +133,7 @@ def wordcount_sankey(data, word_list=None, k=5):
     # # occurs in the text it's linked with
     # sk.make_sankey(df_word_counts, 0, 'Text', 'Words', vals=df_word_counts['Counts'])
 
+
 def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=None):
     # Citation: https://realpython.com/python-nltk-sentiment-analysis/
     """ Creates a bar chart for each file representing their overall sentiments
@@ -159,7 +163,6 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
         words = convert_file_to_string(word_count, max_words=max_words)
-
         # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
         # dictionary
         sentiment_distribution = sia.polarity_scores(words)
@@ -198,6 +201,49 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     # display the bar charts
     plt.show()
 
+def sentiment_scatter(data, max_words=None):
+    """ Scatter plot with the x being the count of positive words and y being the count of negative words
+    Each point is a file.
+
+    Args:
+        data (dict): data extracted from the file as a dictionary attribute--> raw data
+        max_words (int): the number of words considered from each file for analysis, based on their frequencies
+    Returns:
+        none (just a scatter plot)
+    """
+    # initialize empty lists
+    texts = []
+    positive_distributions = []
+    negative_distributions = []
+
+    # obtain the word count dictionary of a file
+    word_count_dict = data['wordcount']
+
+    # initialize a sentiment intensity analyzer
+    sia = SentimentIntensityAnalyzer()
+
+    # grab the words from each file and compile them into one string per file
+    for text, word_count in word_count_dict.items():
+        words = convert_file_to_string(word_count, max_words=max_words)
+        # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
+        # dictionary
+        sentiment_distribution = sia.polarity_scores(words)
+        pos_score = sentiment_distribution['pos']
+        neg_score = sentiment_distribution['neg']
+        # print(pos_score)
+        # store the names of the files as well as its sentiment distribution dictionaries
+        texts.append(text)
+        positive_distributions.append(pos_score)
+        negative_distributions.append(neg_score)
+
+    fig, ax = plt.subplots()
+    ax.scatter(positive_distributions, negative_distributions)
+
+    for i, txt in enumerate(texts):
+        ax.annotate(txt, (positive_distributions[i], negative_distributions[i]))
+
+    plt.legend(bbox_to_anchor=(1, 1))
+ 
 
 def avgwlength_boxplot(data):
     """ Creates a boxplot of word lengths on one visualization with labels for each of the files, showing distributions
@@ -396,32 +442,35 @@ def main():
     except LoadStopWordError as pe:
         print(str(pe))
 
-    # produce sankey diagram with the passed in files
-    ts.load_visualization('sankey1', wordcount_sankey)
-    ts.visualize('sankey1')
+    # # produce sankey diagram with the passed in files
+    # ts.load_visualization('sankey1', wordcount_sankey)
+    # ts.visualize('sankey1')
+    #
+    # # produce sentiment analysis bar charts for each of the files passed in
+    # ts.load_visualization('sentiment1', sentiment_analysis_bars, 5, 2)
+    # ts.visualize('sentiment1')
+    #
+    # # produce boxplot about length of words for each of the files passed in
+    # ts.load_visualization('boxplot1', avgwlength_boxplot)
+    # ts.visualize('boxplot1')
+    #
+    # # produce bar chart for average length of words
+    # ts.load_visualization('barchart1', avgwlength_bar)
+    # ts.visualize('barchart1')
+    #
+    # # produce a box plot for length of words for all the files combined
+    # ts.load_visualization('totalboxplot1', total_wordl_boxplot)
+    # ts.visualize('totalboxplot1')
 
-    # produce sentiment analysis bar charts for each of the files passed in
-    ts.load_visualization('sentiment1', sentiment_analysis_bars, 5, 2)
-    ts.visualize('sentiment1')
+    # # produce a box plot for length of words for all the files combined
+    # ts.load_visualization('wordcloud1', make_wordclouds, colormaps=wordcloud_colors)
+    # ts.visualize('wordcloud1')
 
-    # produce boxplot about length of words for each of the files passed in
-    ts.load_visualization('boxplot1', avgwlength_boxplot)
-    ts.visualize('boxplot1')
-
-    # produce bar chart for average length of words
-    ts.load_visualization('barchart1', avgwlength_bar)
-    ts.visualize('barchart1')
-
-    # produce a box plot for length of words for all the files combined
-    ts.load_visualization('totalboxplot1', total_wordl_boxplot)
-    ts.visualize('totalboxplot1')
-
-    # produce a box plot for length of words for all the files combined
-    ts.load_visualization('wordcloud1', make_wordclouds, colormaps=wordcloud_colors)
-    ts.visualize('wordcloud1')
+    ts.load_visualization('sentimentscatter', sentiment_scatter)
+    ts.visualize('sentimentscatter')
 
     # print out data dictionary
-    pp.pprint(ts.data)
+    # pp.pprint(ts.data)
 
 
 if __name__ == '__main__':
