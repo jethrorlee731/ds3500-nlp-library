@@ -5,7 +5,6 @@ by specific user-defined functions in the file
 
 from collections import defaultdict
 from nlp import Nlp
-import pprint as pp
 import matplotlib.pyplot as plt
 import sankey as sk
 import pandas as pd
@@ -60,6 +59,8 @@ def wordcount_sankey(data, word_list=None, k=5):
 
     # initialize empty lists
     texts = []
+    words = []
+    counts = []
     all_words = []
     all_counts = []
 
@@ -69,21 +70,29 @@ def wordcount_sankey(data, word_list=None, k=5):
                                                             reverse=True)}
         # get a list of only the keys
         words = list(word_count.keys())
-        if word_list is None:
-            if k is not None:
-                # get only the top k
-                words = words[:k]
-        else:
-            # get only those that are in the word_list
-            words = [word for word in words if word in word_list]
-        counts = list(word_count.values())
-        counts = counts[:k]
-        text = [text] * len(words)
 
-        texts += text
-        all_words += words
-        all_counts += counts
+        if k is not None:
+            # get only the top k words
+            for word in words[:k]:
+                if word_list is None or len(word_list) == 0:
+                    word_list = []
+                if word not in word_list:
+                    word_list.append(word)
 
+    for text, word_count in word_count_dict.items():
+        # Sorts the word counts in descending order by counts
+        word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
+                                                            reverse=True)}
+
+        for word, count in word_count.items():
+            if word in word_list:
+                all_words.append(word)
+                all_counts.append(count)
+                texts += [text]
+
+    print(all_words)
+    print(all_counts)
+    print(texts)
     word_count = list(zip(all_words, all_counts, texts))
     df_word_counts = pd.DataFrame(word_count, columns=['Word', 'Counts', 'Text'])
     sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
@@ -201,6 +210,7 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     # display the bar charts
     plt.show()
 
+
 def sentiment_scatter(data, max_words=None):
     """ Scatter plot with the x being the count of positive words and y being the count of negative words
     Each point is a file.
@@ -241,11 +251,11 @@ def sentiment_scatter(data, max_words=None):
     for i, txt in enumerate(texts):
         ax.annotate(txt, (positive_distributions[i], negative_distributions[i]))
 
-
     plt.xlabel('Positive Score')
     plt.ylabel('Negative Score')
     plt.title('Negative vs Positive Score of Different Songs')
     plt.show()
+
 
 def avgwlength_boxplot(data):
     """ Creates a boxplot of word lengths on one visualization with labels for each of the files, showing distributions
@@ -470,9 +480,6 @@ def main():
 
     ts.load_visualization('sentimentscatter', sentiment_scatter)
     ts.visualize('sentimentscatter')
-
-    # print out data dictionary
-    # pp.pprint(ts.data)
 
 
 if __name__ == '__main__':
