@@ -44,6 +44,13 @@ def main():
     ts.load_visualization('sankey1', tviz.wordcount_sankey)
     ts.visualize('sankey1')
 
+    # produce a wordcloud for word counts from each file
+    # colors used for the word cloud
+    wordcloud_colors = ['summer', 'Wistia', 'BuPu', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
+                        'Purples']
+    ts.load_visualization('wordcloud1', tviz.make_wordclouds, colormaps=wordcloud_colors)
+    ts.visualize('wordcloud1')
+
     # produce sentiment analysis bar charts for each of the files passed in
     ts.load_visualization('sentiment1', tviz.sentiment_analysis_bars, 5, 2)
     ts.visualize('sentiment1')
@@ -59,13 +66,6 @@ def main():
     # produce a box plot for length of words for all the files combined
     ts.load_visualization('totalboxplot1', tviz.total_wordl_boxplot)
     ts.visualize('totalboxplot1')
-
-    # produce a wordcloud for word counts from each file
-    # colors used for the word cloud
-    wordcloud_colors = ['summer', 'Wistia', 'BuPu', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
-                        'Purples']
-    ts.load_visualization('wordcloud1', tviz.make_wordclouds, colormaps=wordcloud_colors)
-    ts.visualize('wordcloud1')
 
     # produce a scatter plot with the count of positive words and being of negative words
     ts.load_visualization('sentimentscatter', tviz.sentiment_scatter)
