@@ -11,30 +11,35 @@ import pandas as pd
 
 
 def custom_parser(filename, text_column, parser):
-    """ Take the pandas dataframe of the file read in and return a list of only the interested words
+    """ Reads in a file to make a Pandas dataframe out of and returns a list of only the words of interest
     Args:
-        filename (str): name of interested json filename
-        text_column (str): name of interested column from the dataframe
-        parser (str): type of custom parser to be used (json, csv, or excel)
+        filename (str): name of the file of interest
+        text_column (str): name of column of interest from the dataframe (which contains the texts)
+        parser (str): type of custom parser to be used (json, csv, or Excel)
     Returns:
         clean_words_list (list) list of words (str) of the interested words from the file
     """
+    assert type(filename) == str, 'File name must be specified as a string'
+    assert type(text_column) == str, 'The column of the new dataframe which contains the texts must be specified as ' \
+                                     'a string'
+    assert parser in ('json', 'csv', 'excel'), 'Unsupported file type'
+
     # initialize empty list
     clean_words_list = []
 
-    # read in json file into a dataframe
+    # read in JSON file into a dataframe
     if parser == 'json':
         df = pd.read_json(filename)
 
-    # read in csv file into a dataframe
+    # read in CSV file into a dataframe
     elif parser == 'csv':
         df = pd.read_csv(filename)
 
-    # read in csv file into a dataframe
+    # read in Excel file into a dataframe
     else:
         df = pd.read_excel(filename)
 
-    # get the interested column that has texts
+    # get the column that has the texts
     df_text = df[text_column]
 
     # turn the column of texts into a list

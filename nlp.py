@@ -18,7 +18,7 @@ class Nlp:
 
     Attributes:
         data (dict): dictionary managing data about the different texts that we register with the framework
-        viz (dict): dictionary that maps the name of the visualization to the visualization function
+        viz (dict): dictionary that maps the name of the visualization to a visualization function
     """
 
     def __init__(self):
@@ -32,8 +32,9 @@ class Nlp:
         Args:
             clean_words (list): list of clean words
         Returns:
-            results (dict): dictionary with the data results based on the words
+            results (dict): dictionary with data about the inputted words
         """
+        # make sure the inputted parameters are valid based on their type
         assert type(clean_words) == list, 'Clean words must be consolidated into a list'
         for word in clean_words:
             assert type(word) == str, 'Clean word list must only contain strings before getting used'
@@ -61,20 +62,23 @@ class Nlp:
                 'avgwordlength': avg_wl
             }
         except Exception as e:
+            # throw a message error if the dictionary fails to be created
             raise DataResultsError(clean_words, str(e))
         else:
+            # throw a success message if the dictionary gets created
             print('Dictionary containing the word frequencies, overall word count, world length list, and average'
                   'word lengths successfully created')
             return results
 
     @staticmethod
     def _filter_stopwords(words):
-        """ Filter out stop words from the given words
+        """ Filter out stop words from a list of given words
         Args:
             words (list): list of words that may have stop words
         Returns:
             clean_words (list): list of words that don't include the stop words
         """
+        # make sure the inputted parameters are valid based on their type
         assert type(words) == list, 'Must input the words to be filtered as a list'
         for word in words:
             assert type(word) == str, 'Word list must only contain strings before getting filtered'
@@ -87,8 +91,10 @@ class Nlp:
             # Citation: https://realpython.com/python-nltk-sentiment-analysis/
             clean_words = [word.lower() for word in words if word.lower() not in stop_words]
         except Exception as e:
+            # throws an error message is the stop words cannot be filtered out
             raise StopWordError(words, str(e))
         else:
+            # throws a success message if the stop words are filtered out
             print('Stop words successfully filtered out')
             return clean_words
 
@@ -97,11 +103,11 @@ class Nlp:
         """ Parser that reads in a txt file
 
         Args:
-            filename (str): name of interested filename
+            filename (str): name of the filename of interest
         Returns:
-            results (dict): key being what data collected and value being the data
+            results (dict): key being what kind of data gets collected about the file and value being the data itself
         """
-        # Exception handling for the given parameters
+        # Checking that the inputted parameters are valid based on their type
         assert filename[-3:] in ('csv', 'txt', 'son', 'lsx'), 'File type not supported. Only these are supported: ' \
                                                               '.csv, .txt, .json, .excel '
         assert type(filename) == str, 'File must be inputted as a string'
@@ -110,7 +116,7 @@ class Nlp:
             # initialize empty list to store words
             words = []
 
-            # open and read the interested file
+            # open and read the file of interest
             text_file = open(filename, 'r')
             rows_of_text = text_file.readlines()
 
@@ -140,8 +146,10 @@ class Nlp:
             # close the file
             text_file.close()
         except Exception as e:
+            # throws an error message if the file is not parsed
             raise DefaultParsingError(filename, str(e))
         else:
+            # throws a success message if the file is successfully parsed
             print('File is successfully parsed')
             return words
 
@@ -152,25 +160,28 @@ class Nlp:
             label (str): unique label for a text file that we parsed
             results (dict): the data extracted from the file as a dictionary attribute--> raw data
         """
+        # Ensure the inputted parameters are valid based on their type
         assert type(label) == str, 'Label for the text file must be a string'
         assert type(results) == dict, 'The data extracted from this file must be stored in a dictionary'
 
         try:
+            # adds the parsing results into the internal state
             for k, v in results.items():
                 self.data[k][label] = v
         except Exception as e:
+            # throws an error message if the results cannot be saved
             raise SaveResultsError(label, str(e))
 
     def load_text(self, filename, label=None, text_column='text', parser=None):
         """ Register a document with the framework
 
         Args:
-            filename (str): name of interested file
+            filename (str): name of the file of interest
             label (str): optional label for file
             parser (str): optional type of parser to be used
-            text_column (str): name of column that has the interested text
+            text_column (str): name of column that has the text of interest
         """
-        # Exception handling for the given parameters
+        # Ensuring the inputted parameters are valid based on their type
         assert filename[-3:] in ('csv', 'txt', 'son', 'cel'), \
             'File type not supported. Only these are supported: .csv, .txt, .json, .excel'
         assert type(filename) == str, 'File must be inputted as a string'
@@ -183,6 +194,7 @@ class Nlp:
             if parser is None:
                 words = Nlp._default_parser(filename)
             else:
+                # checking that the custom parser is inputted as a string
                 assert type(parser) == str, 'Parser must be a string'
                 # do custom parsing for non- .txt files
                 words = nlp_par.custom_parser(filename, text_column=text_column, parser=parser)
@@ -191,16 +203,19 @@ class Nlp:
             # compute statistics/calculations regarding the list of words
             results = Nlp._data_results(clean_words)
 
-        except Exception as e:
-            raise LoadStopWordError(filename, str(e))
-
-        else:
-            print('Document is successfully registered')
             if label is None:
                 label = filename
 
             # Save/integrate the data we extracted from the file into the internal state of the framework
             self._save_results(label, results)
+
+        except Exception as e:
+            # throws an error message if the document cannot be registered into the framework
+            raise ParserError(filename, str(e))
+
+        else:
+            # throws a success message if the document is sucessfully registered
+            print('Document is successfully registered')
 
     @staticmethod
     # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
@@ -213,13 +228,14 @@ class Nlp:
             stop_words (list): list of stopwords based on NLTK library
         """
         try:
+            # retrieves a list of stopwords from the NLTK library if none is given
             if stopfile is None:
                 stop_words = list(stopwords.words('english'))
             else:
+                # ensure that the stop file is inputted as a string and that its file type is valid
                 assert stopfile[-3:] in ('csv', 'txt', 'son', 'lsx'), \
                     'File type not supported. Only these are supported: .csv, .txt, .json, .excel'
                 assert type(stopfile) == str, 'File must be inputted as a string'
-                stop_words = []
 
                 if parser is None:
                     stop_words = Nlp._default_parser(stopfile)
@@ -227,10 +243,12 @@ class Nlp:
                 else:
                     assert type(parser) == str, 'Parser must be inputted as a string'
                     # Perform parsing
-                    pass
+                    stop_words = nlp_par.custom_parser(stopfile, text_column='text', parser=parser)
         except Exception as e:
+            # throws an error message if the stop words cannot get filtered out
             raise LoadStopWordError(stopfile, str(e))
         else:
+            # throws a success message if the stop words are filtered out
             print('Stop words successfully loaded')
             return stop_words
 
@@ -240,16 +258,20 @@ class Nlp:
         Args:
             name (str): name of visualization
             vizfunc (function): name of function to execute the visualization
-            *args: unlimited number of defined parameters
-            **kwargs: unlimited number of undefined parameters
+            *args: unlimited number of defined parameters for the visualization
+            **kwargs: unlimited number of undefined parameters for the visualization
         """
+        # Ensure the inputted parameters are valid based on their type
         assert type(name) == str, 'The name of the visualization must be a string'
         assert (callable(vizfunc)), 'You must input a callable function to execute the visualization'
         try:
+            # add the visualization into the internal state
             self.viz[name] = (vizfunc, args, kwargs)
         except Exception as e:
+            # throws an error message if the visualization cannot get added to the internal state
             raise LoadVisualizationError(vizfunc, str(e))
         else:
+            # throws a success message if the visualization is added to the internal state
             print('Visualization is successfully integrated into the internal state')
 
     def visualize(self, name=None):
@@ -270,6 +292,8 @@ class Nlp:
                 vizfunc, args, kwargs = self.viz[name]
                 vizfunc(self.data, *args, **kwargs)
         except Exception as e:
+            # throws an error message if the visualization cannot get plotted
             raise VisualizeError(name, str(e))
         else:
+            # throws a success message if the visualization gets plotted
             print('Visualization successfully plotted')

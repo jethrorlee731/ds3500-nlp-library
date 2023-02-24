@@ -22,13 +22,14 @@ def convert_file_to_string(word_count, max_words=None):
         max_words (int): the number of words considered from each file for analysis, based on their frequencies
     """
     words = ''
-    # if max_words is given, restrict the analysis to consider only the max_words number of
-    # most popular words in each file
+    # if max_words is given, restrict the analysis to consider only the max_words number of words in each file
     if max_words is not None:
+        # making sure that the maximum word specification is inputted as an integer
         assert type(max_words) == int, 'The number of words considered from each file for analysis must be an integer'
         word_count = {word: count for word, count in sorted(word_count.items(), key=lambda item: item[1],
                                                             reverse=True)}
         word_count = dict(word_count.items()[:max_words])
+
     for word, count in word_count.items():
         # Extract each word in the word count dictionary and repeat them in the returned string based on their
         # frequency in the file
@@ -48,12 +49,14 @@ def wordcount_sankey(data, word_list=None, k=5):
     Returns:
         None (just a sankey diagram!)
     """
-    # Exception handling for the given parameters
+    # Ensuring the inputted parameters are of a valid type
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
     assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
     if word_list is not None:
         assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
         assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
+    else:
+        word_list = []
 
     # obtain the word count dictionary of a file
     word_count_dict = data['wordcount']
@@ -71,10 +74,8 @@ def wordcount_sankey(data, word_list=None, k=5):
         words = list(word_count.keys())
 
         if k is not None:
-            # get only the top k words
+            # get only the top k words and adds them to the list of words shown on the diagram
             for word in words[:k]:
-                if word_list is None or len(word_list) == 0:
-                    word_list = []
                 if word not in word_list:
                     word_list.append(word)
 
@@ -85,12 +86,17 @@ def wordcount_sankey(data, word_list=None, k=5):
 
         for word, count in word_count.items():
             if word in word_list:
+                # extracts the word, its count in a file, and the file's name and adds them to lists if the word is in
+                # word_list and/or part of the k most popular words across each file
                 all_words.append(word)
                 all_counts.append(count)
                 texts += [text]
 
+    # use all_words, all_counts, and texts to create a dataframe containing word count information about the texts
     word_count = list(zip(all_words, all_counts, texts))
     df_word_counts = pd.DataFrame(word_count, columns=['Word', 'Counts', 'Text'])
+
+    # use the new dataframe to create a Sankey diagram
     sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
 
 
@@ -105,7 +111,7 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     Returns:
         None (just bar charts!)
     """
-    # Exception handling for the given parameters
+    # Checking whether the types of the inputted parameters are valid
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
     assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
     assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
@@ -123,11 +129,12 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
         words = convert_file_to_string(word_count, max_words=max_words)
+
         # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
         # dictionary
         sentiment_distribution = sia.polarity_scores(words)
 
-        # store the names of the files as well as its sentiment distribution dictionaries
+        # store the names of the files as well as their sentiment distribution dictionaries
         texts.append(text)
         sentiment_distributions.append(sentiment_distribution)
 
@@ -163,15 +170,22 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
 
 
 def sentiment_scatter(data, max_words=None):
-    """ Scatter plot with the x being the count of positive words and y being the count of negative words
-    Each point is a file.
+    """ Scatter plot with the x being the positive score of a file and y being the file's negative score
 
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
         max_words (int): the number of words considered from each file for analysis, based on their frequencies
     Returns:
-        none (just a scatter plot)
+        None (just a scatter plot)
     """
+    # Ensuring the data types of the inputted parameters are valid
+    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
+
+    # if max_words is given, restrict the analysis to consider only the max_words number of words in each file
+    if max_words is not None:
+        # making sure that the maximum word specification is inputted as an integer
+        assert type(max_words) == int, 'The number of words considered from each file for analysis must be an integer'
+
     # initialize empty lists
     texts = []
     positive_distributions = []
@@ -186,39 +200,44 @@ def sentiment_scatter(data, max_words=None):
     # grab the words from each file and compile them into one string per file
     for text, word_count in word_count_dict.items():
         words = convert_file_to_string(word_count, max_words=max_words)
+
         # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
         # dictionary
         sentiment_distribution = sia.polarity_scores(words)
         pos_score = sentiment_distribution['pos']
         neg_score = sentiment_distribution['neg']
-        # store the names of the files as well as its sentiment distribution dictionaries
+
+        # store the names of the files as well as their sentiment distribution dictionaries
         texts.append(text)
         positive_distributions.append(pos_score)
         negative_distributions.append(neg_score)
 
+    # plot the relationship between the positive score and negative score of a file
     fig, ax = plt.subplots(figsize=(20, 10))
     ax.scatter(positive_distributions, negative_distributions)
 
+    # Adds labels to each point on the scatter plot
     for i, txt in enumerate(texts):
         ax.annotate(txt, (positive_distributions[i], negative_distributions[i]))
 
+    # Adds labels to the scatter plot
     plt.xlabel('Positive Score')
     plt.ylabel('Negative Score')
-    plt.title('Negative vs Positive Score of Different Songs')
+    plt.title('Negative vs. Positive Score of Different Songs')
     plt.show()
 
 
 def avgwlength_boxplot(data):
-    """ Creates a boxplot of word lengths on one visualization with labels for each of the files, showing distributions
+    """ Creates a boxplot summarizing the word length distributions of each registered file
     Citation:
     https://www.tutorialspoint.com/creating-multiple-boxplots-on-the-same-graph-from-a-dictionary-using-matplotlib
 
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
     Returns:
-        None (boxplot in one visualization of all the files)
+        None (boxplot in one visualization representing all the files)
     """
-    # Exception handling for the given parameters
+    # Making sure the type of the inputted parameters is valid
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
 
     # obtain the word length dictionary
@@ -231,12 +250,12 @@ def avgwlength_boxplot(data):
     # create a figure with the subplots
     fig, ax = plt.subplots()
 
-    # plot the boxplot with labels
+    # plot the boxplot summarizing the word lengths with labels
     ax.boxplot(word_length_dict.values())
     ax.set_xticklabels(word_length_dict.keys(), rotation=90, fontsize=5)
     plt.xlabel('Name of Song')
-    plt.ylabel('Average Word Length Distributions')
-    plt.title('Average Word Length Distributions for the Different Songs')
+    plt.ylabel('Word Length Distributions')
+    plt.title('Word Length Distributions for the Different Songs')
 
     # make the boxplot show
     plt.show()
@@ -249,13 +268,13 @@ def avgwlength_bar(data):
     Returns:
         None (just a bar chart)
     """
-    # Exception handling for the given parameters
+    # Ensuring that the inputted parameters are of the correct type
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
 
-    # obtain the avg word length dictionary
+    # obtain the average word length dictionary
     avg_wordl_dict = data['avgwordlength']
 
-    # get the labels and values in separate variables
+    # get the labels and average word length values and store them as separate variables
     label = list(avg_wordl_dict.keys())
     value = list(avg_wordl_dict.values())
 
@@ -275,13 +294,13 @@ def avgwlength_bar(data):
 
 
 def total_wordl_boxplot(data):
-    """ Create a boxplot that gives distribution of the word length for all the files combined
+    """ Create a boxplot that presents the distribution of the word lengths for the words from all the files combined
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
     Returns:
         None (just a boxplot)
     """
-    # Exception handling for the given parameters
+    # Checking the inputted parameters are of the correct type
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
 
     # obtain the word length list dictionary
@@ -290,7 +309,7 @@ def total_wordl_boxplot(data):
     # get just the word lengths
     total_wl_list = list(word_length_dict.values())
 
-    # turn the 2d list into 1d
+    # turn the 2D list into a 1D list for plotting purposes
     total_wl_list = [item for sublist in total_wl_list for item in sublist]
 
     # set the figure size
@@ -321,7 +340,7 @@ def make_wordclouds(data, colormaps=None, background_color='black', min_font_siz
         Returns:
             None (just word clouds)
         """
-    # Assertion statements for input parameters
+    # Assertion statements for the input parameters
     if colormaps is not None:
         assert type(colormaps) == list, 'The color schemes of the wordcloud must be entered in a list'
         for colormap in colormaps:
@@ -345,10 +364,11 @@ def make_wordclouds(data, colormaps=None, background_color='black', min_font_siz
     for text, word_count in word_count_dict.items():
         words = convert_file_to_string(word_count, max_words=max_words)
 
+        # store the names of the files and their words strings into lists
         texts.append(text)
         word_strings.append(words)
 
-    # generates the word cloud figure
+    # initializes the word cloud figure
     plt.figure()
 
     # defines the default colormap
@@ -360,14 +380,13 @@ def make_wordclouds(data, colormaps=None, background_color='black', min_font_siz
         plt.subplot(subplot_rows, subplot_columns, i + 1)
         wordcloud = WordCloud(background_color=background_color, colormap=colormaps[i], min_font_size=min_font_size,
                               normalize_plurals=normalize_plurals, collocations=collocations).generate(word_strings[i])
-
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis('off')
 
         # Each subplot is labeled based on the text they are representing
         plt.gca().title.set_text('Word Cloud For "' + texts[i] + '"')
 
-    # Gives the plot a title
+    # Gives the plot an overarching title
     plt.suptitle('Overall Word Counts')
 
     # resizes the graph to ensure that it can be clearly read
