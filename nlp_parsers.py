@@ -9,6 +9,7 @@ nlp_parsers.py: json, csv, and excel parsers to get the interested column from t
 # import necessary libraries
 import pandas as pd
 
+
 def custom_parser(filename, text_column, parser):
     """ Take the pandas dataframe of the file read in and return a list of only the interested words
     Args:
