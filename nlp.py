@@ -128,6 +128,8 @@ class Nlp:
                 for word in row_words:
                     # change all letters to lower case
                     word = word.lower()
+                    # remove leading and trailing white-spaces
+                    word = word.strip()
                     # filter out blank words and possible non-words (e.g., 'words' that start with a number)
                     if word != '' and word[0].isalpha():
                         # remove punctuation from the end of words
@@ -159,16 +161,17 @@ class Nlp:
         except Exception as e:
             raise SaveResultsError(label, str(e))
 
-    def load_text(self, filename, label=None, parser=None):
+    def load_text(self, filename, label=None, text_column='text', parser=None):
         """ Register a document with the framework
 
         Args:
-            filename(str): name of interested file
-            label(str): optional label for file
-            parser(str): optional type of parser to be used
+            filename (str): name of interested file
+            label (str): optional label for file
+            parser (str): optional type of parser to be used
+            text_column (str): name of column that has the interested text
         """
         # Exception handling for the given parameters
-        assert filename[-3:] in ('csv', 'txt', 'son', 'lsx'), \
+        assert filename[-3:] in ('csv', 'txt', 'son', 'cel'), \
             'File type not supported. Only these are supported: .csv, .txt, .json, .excel'
         assert type(filename) == str, 'File must be inputted as a string'
 
@@ -179,15 +182,15 @@ class Nlp:
             # do default parsing of standard .txt file
             if parser is None:
                 words = Nlp._default_parser(filename)
-                clean_words = Nlp._filter_stopwords(words)
-                results = Nlp._data_results(clean_words)
             else:
                 assert type(parser) == str, 'Parser must be a string'
-                # execute if a json file is passed in
-                if parser == 'json':
-                    words = nlp_par.json_parser(filename, text_column='text')
-                    clean_words = Nlp._filter_stopwords(words)
-                    results = Nlp._data_results(clean_words)
+                # do custom parsing for non- .txt files
+                words = nlp_par.custom_parser(filename, text_column=text_column, parser=parser)
+            # clean the list of words, removing stopwords
+            clean_words = Nlp._filter_stopwords(words)
+            # compute statistics/calculations regarding the list of words
+            results = Nlp._data_results(clean_words)
+
         except Exception as e:
             raise LoadStopWordError(filename, str(e))
 

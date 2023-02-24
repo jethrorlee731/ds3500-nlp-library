@@ -9,59 +9,29 @@ nlp_parsers.py: json, csv, and excel parsers to get the interested column from t
 # import necessary libraries
 import pandas as pd
 
-
-def json_parser(filename, text_column):
-    """ Read in a json file and turn the words in the text_column into a 1d list
+def custom_parser(filename, text_column, parser):
+    """ Take the pandas dataframe of the file read in and return a list of only the interested words
     Args:
         filename (str): name of interested json filename
-        text_column (str): name of interested column from the file
-
+        text_column (str): name of interested column from the dataframe
+        parser (str): type of custom parser to be used (json, csv, or excel)
     Returns:
-        words_list (list): list of words (str) from the file
+        clean_words_list (list) list of words (str) of the interested words from the file
     """
+    # initialize empty list
+    clean_words_list = []
+
     # read in json file into a dataframe
-    df = pd.read_json(filename)
+    if parser == 'json':
+        df = pd.read_json(filename)
 
-    # get the interested column that has texts
-    df_text = df[text_column]
-
-    # turn the column of texts into a list
-    words_list = list(df_text)
-
-    return words_list
-
-
-def csv_parser(filename, text_column):
-    """ Read in a csv file and turn the words in the text_column into a 1d list
-    Args:
-        filename (str): name of interested csv filename
-        text_column (str): name of interested column from the file
-
-    Returns:
-        words_list (list): list of words (str) from the file
-    """
     # read in csv file into a dataframe
-    df = pd.read_csv(filename)
+    elif parser == 'csv':
+        df = pd.read_csv(filename)
 
-    # get the interested column that has texts
-    df_text = df[text_column]
-
-    # turn the column of texts into a list
-    words_list = list(df_text)
-
-    return words_list
-
-
-def excel_parser(filename, text_column):
-    """ Read in an Excel file and turn the words in the text_column into a 1d list
-    Args:
-        filename (str): name of interested csv filename
-        text_column (str): name of interested column from the file
-    Returns:
-        words_list (list): list of words (str) from the file
-    """
     # read in csv file into a dataframe
-    df = pd.read_excel(filename)
+    else:
+        df = pd.read_excel(filename)
 
     # get the interested column that has texts
     df_text = df[text_column]
@@ -69,4 +39,9 @@ def excel_parser(filename, text_column):
     # turn the column of texts into a list
     words_list = list(df_text)
 
-    return words_list
+    for word in words_list:
+        # remove leading and trailing white-spaces
+        word = word.strip()
+        clean_words_list.append(word)
+
+    return clean_words_list
