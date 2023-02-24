@@ -1,7 +1,12 @@
 """
+Jethro Lee and Michelle Wang
+DS 3500
+Reusable NLP Library - HW3
+2/27/2023
+
 sankey.py: A reusable library for sankey visualization
 """
-
+# import necessary libraries
 import plotly.graph_objects as go
 import pandas as pd
 

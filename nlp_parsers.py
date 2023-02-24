@@ -1,6 +1,12 @@
 """
+Jethro Lee and Michelle Wang
+DS 3500
+Reusable NLP Library - HW3
+2/27/2023
+
 nlp_parsers.py: json, csv, and excel parsers to get the interested column from the files
 """
+# import necessary libraries
 import pandas as pd
 
 

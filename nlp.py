@@ -1,9 +1,13 @@
 """
-nlp.py: Core framework class for NLP Comparative Analysis
+Jethro Lee and Michelle Wang
+DS 3500
+Reusable NLP Library - HW3
+2/27/2023
 
+nlp.py: Core framework class for NLP Comparative Analysis
 """
+
 from collections import Counter, defaultdict
-import nltk
 from nltk.corpus import stopwords
 import nlp_parsers as nlp_par
 from exception import *
@@ -207,7 +211,6 @@ class Nlp:
         """
         try:
             if stopfile is None:
-                nltk.download('stopwords')
                 stop_words = list(stopwords.words('english'))
             else:
                 assert stopfile[-3:] in ('csv', 'txt', 'son', 'lsx'), \
