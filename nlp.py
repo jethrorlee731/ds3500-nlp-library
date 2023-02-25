@@ -64,6 +64,7 @@ class Nlp:
         except Exception as e:
             # throw a message error if the dictionary fails to be created
             raise DataResultsError(clean_words, str(e))
+
         else:
             # throw a success message if the dictionary gets created
             print('Dictionary containing the word frequencies, overall word count, world length list, and average'
@@ -90,9 +91,11 @@ class Nlp:
             # make all the letters lower case and filter out the file's stop words
             # Citation: https://realpython.com/python-nltk-sentiment-analysis/
             clean_words = [word.lower() for word in words if word.lower() not in stop_words]
+
         except Exception as e:
             # throws an error message is the stop words cannot be filtered out
             raise StopWordError(words, str(e))
+
         else:
             # throws a success message if the stop words are filtered out
             print('Stop words successfully filtered out')
@@ -145,9 +148,11 @@ class Nlp:
 
             # close the file
             text_file.close()
+
         except Exception as e:
             # throws an error message if the file is not parsed
             raise DefaultParsingError(filename, str(e))
+
         else:
             # throws a success message if the file is successfully parsed
             print('File is successfully parsed')
@@ -168,6 +173,7 @@ class Nlp:
             # adds the parsing results into the internal state
             for k, v in results.items():
                 self.data[k][label] = v
+
         except Exception as e:
             # throws an error message if the results cannot be saved
             raise SaveResultsError(label, str(e))
@@ -193,11 +199,14 @@ class Nlp:
             # do default parsing of standard .txt file
             if parser is None:
                 words = Nlp._default_parser(filename)
+
             else:
                 # checking that the custom parser is inputted as a string
                 assert type(parser) == str, 'Parser must be a string'
+
                 # do custom parsing for non- .txt files
                 words = nlp_par.custom_parser(filename, text_column=text_column, parser=parser)
+
             # clean the list of words, removing stopwords
             clean_words = Nlp._filter_stopwords(words)
             # compute statistics/calculations regarding the list of words
@@ -231,6 +240,7 @@ class Nlp:
             # retrieves a list of stopwords from the NLTK library if none is given
             if stopfile is None:
                 stop_words = list(stopwords.words('english'))
+
             else:
                 # ensure that the stop file is inputted as a string and that its file type is valid
                 assert stopfile[-3:] in ('csv', 'txt', 'son', 'lsx'), \
@@ -242,11 +252,14 @@ class Nlp:
 
                 else:
                     assert type(parser) == str, 'Parser must be inputted as a string'
+
                     # Perform parsing
                     stop_words = nlp_par.custom_parser(stopfile, text_column='text', parser=parser)
+
         except Exception as e:
             # throws an error message if the stop words cannot get filtered out
             raise LoadStopWordError(stopfile, str(e))
+
         else:
             # throws a success message if the stop words are filtered out
             print('Stop words successfully loaded')
@@ -264,12 +277,15 @@ class Nlp:
         # Ensure the inputted parameters are valid based on their type
         assert type(name) == str, 'The name of the visualization must be a string'
         assert (callable(vizfunc)), 'You must input a callable function to execute the visualization'
+
         try:
             # add the visualization into the internal state
             self.viz[name] = (vizfunc, args, kwargs)
+
         except Exception as e:
             # throws an error message if the visualization cannot get added to the internal state
             raise LoadVisualizationError(vizfunc, str(e))
+
         else:
             # throws a success message if the visualization is added to the internal state
             print('Visualization is successfully integrated into the internal state')
@@ -286,14 +302,17 @@ class Nlp:
                 for _, v in self.viz.items():
                     vizfunc, args, kwargs = v
                     vizfunc(self.data, *args, **kwargs)
+
             else:
                 # run only the named visualization
                 assert type(name) == str, 'The name of the visualization must be a string'
                 vizfunc, args, kwargs = self.viz[name]
                 vizfunc(self.data, *args, **kwargs)
+
         except Exception as e:
             # throws an error message if the visualization cannot get plotted
             raise VisualizeError(name, str(e))
+
         else:
             # throws a success message if the visualization gets plotted
             print('Visualization successfully plotted')

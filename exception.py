@@ -4,7 +4,7 @@ DS 3500
 Reusable NLP Library - HW3
 2/27/2023
 
-exception.py: A set of classes as  framework-specific exception classes
+exception.py: A set of classes as framework-specific exception classes
 """
 
 

@@ -53,9 +53,11 @@ def wordcount_sankey(data, word_list=None, k=5):
     # Ensuring the inputted parameters are of a valid type
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
     assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
+
     if word_list is not None:
         assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
         assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
+
     else:
         word_list = []
 
@@ -143,14 +145,17 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     # bar charts
     for i in range(len(texts)):
         plt.subplot(subplot_rows, subplot_columns, i + 1)
+
         for sentiment, score in sentiment_distributions[i].items():
             # displays the negative score of a text file
             if sentiment == 'neg':
                 plt.barh('Negative', score, label='Negative', color='firebrick')
             # displays the neutral score of a text file
+
             elif sentiment == 'neu':
                 plt.barh('Neutral', score, label='Neutral', color='gold')
             # displays the positive score of a text file
+            
             elif sentiment == 'pos':
                 plt.barh('Positive', score, label='Positive', color='limegreen')
 
