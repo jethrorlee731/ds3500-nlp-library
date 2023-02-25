@@ -43,8 +43,8 @@ def main():
         print(str(pe))
 
     # produce a Sankey diagram for the top 5 words within each registered file
-    ts.load_visualization('sankey1', tviz.wordcount_sankey)
-    ts.visualize('sankey1')
+    ts.load_visualization('sankey', tviz.wordcount_sankey)
+    ts.visualize('sankey')
 
     # produce a wordcloud for the word counts from each file
 
@@ -52,28 +52,28 @@ def main():
     wordcloud_colors = ['summer', 'Wistia', 'BuPu', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
                         'Purples']
 
-    ts.load_visualization('wordcloud1', tviz.make_wordclouds, colormaps=wordcloud_colors)
-    ts.visualize('wordcloud1')
-
-    # produce sentiment analysis bar subplots for each of the files passed in
-    ts.load_visualization('sentiment1', tviz.sentiment_analysis_bars, 5, 2)
-    ts.visualize('sentiment1')
-
-    # produce a boxplot about the lengths of the words for each of the files passed in
-    ts.load_visualization('boxplot1', tviz.avgwlength_boxplot)
-    ts.visualize('boxplot1')
-
-    # produce a bar chart for average length of the words in each registered file
-    ts.load_visualization('barchart1', tviz.avgwlength_bar)
-    ts.visualize('barchart1')
-
-    # produce a box plot summarizing the length of the words for all of the files combined
-    ts.load_visualization('totalboxplot1', tviz.total_wordl_boxplot)
-    ts.visualize('totalboxplot1')
+    ts.load_visualization('wordcloud', tviz.make_wordclouds, colormaps=wordcloud_colors)
+    ts.visualize('wordcloud')
 
     # produce a scatter plot showing the relationship between the degree to which a file's tone is positive vs. negative
     ts.load_visualization('sentimentscatter', tviz.sentiment_scatter)
     ts.visualize('sentimentscatter')
+
+    # produce sentiment analysis bar subplots for each of the files passed in
+    ts.load_visualization('sentimentbar', tviz.sentiment_analysis_bars, 5, 2)
+    ts.visualize('sentimentbar')
+
+    # produce a boxplot about the lengths of the words for each of the files passed in
+    ts.load_visualization('boxplot', tviz.avgwlength_boxplot)
+    ts.visualize('boxplot')
+
+    # produce a bar chart for average length of the words in each registered file
+    ts.load_visualization('barchart', tviz.avgwlength_bar)
+    ts.visualize('barchart')
+
+    # produce a box plot summarizing the length of the words for all the files combined
+    ts.load_visualization('totalboxplot', tviz.total_wordl_boxplot)
+    ts.visualize('totalboxplot')
 
 
 if __name__ == '__main__':

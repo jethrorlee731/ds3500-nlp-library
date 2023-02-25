@@ -17,12 +17,15 @@ from wordcloud import WordCloud
 
 
 def convert_file_to_string(word_count, max_words=None):
-    """ Extracts the words from a file and compiles them into one sting
+    """ Extracts the words from a file that has a frequency in the top user-defined integer
+    in each file and compiles them into one sting
     Args:
         word_count (dict): contains the words in a file (key) and their frequencies (value)
         max_words (int): the number of words considered from each file for analysis, based on their frequencies
     """
+    # create empty string
     words = ''
+
     # if max_words is given, restrict the analysis to consider only the max_words number of words in each file
     if max_words is not None:
         # making sure that the maximum word specification is inputted as an integer
@@ -103,6 +106,146 @@ def wordcount_sankey(data, word_list=None, k=5):
     sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
 
 
+def make_wordclouds(data, colormaps=None, background_color='black', min_font_size=4, normalize_plurals=True,
+                    collocations=False, subplot_rows=4, subplot_columns=3, max_words=None):
+    """ Creates a word cloud that shows the words in a text, with words that appear more frequently appearing larger
+        Args:
+            data (dict): data extracted from the file as a dictionary attribute--> raw data
+            colormaps (list of strings): List of color schemes for the words on the diagram
+            background_color (string): the color of the word cloud's background
+            min_font_size (int): The minimum font size used on the words
+            normalize_plurals (boolean): A boolean value indicating whether the trailing 's' in words should be removed
+            collocations (boolean): A boolean value indicating whether bigrams are considered
+            subplot_rows (int): the number of rows in the sub-plot
+            subplot_columns (int): the number of columns in the sub-plot
+            max_words (int): The maximum number of words represented on the word cloud
+        Returns:
+            None (just word clouds)
+        """
+    # Assertion statements for the input parameters
+    if colormaps is not None:
+        assert type(colormaps) == list, 'The color schemes of the wordcloud must be entered in a list'
+        for colormap in colormaps:
+            assert type(colormap) == str, 'The colormaps for each word cloud must be entered as strings'
+    assert type(background_color) == str, 'The background color of the wordcloud must be entered as a string'
+    assert type(min_font_size) == int, 'The minimum font size of the wordcloud must be entered as an integer'
+    assert type(normalize_plurals) == bool, 'You must indicate whether the plural form of a word should be considered' \
+                                            'the same as its singular form with "True" or "False"'
+    assert type(collocations) == bool, 'You must indicate whether bigrams are considered with "True" or "False"'
+    assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
+    assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
+
+    # initialize empty lists
+    texts = []
+    word_strings = []
+
+    # obtain the word count dictionary of a file
+    word_count_dict = data['wordcount']
+
+    # grab the words from each file and compile them into one string per file
+    for text, word_count in word_count_dict.items():
+        words = convert_file_to_string(word_count, max_words=max_words)
+
+        # store the names of the files and their words strings into lists
+        texts.append(text)
+        word_strings.append(words)
+
+    # initializes the word cloud figure
+    plt.figure()
+
+    # defines the default colormap
+    if colormaps is None:
+        colormaps = ['viridis'] * len(texts)
+
+    for i in range(len(texts)):
+        # generate a subplot word cloud for each file
+        plt.subplot(subplot_rows, subplot_columns, i + 1)
+        wordcloud = WordCloud(background_color=background_color, colormap=colormaps[i], min_font_size=min_font_size,
+                              normalize_plurals=normalize_plurals, collocations=collocations).generate(word_strings[i])
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')
+
+        # Each subplot is labeled based on the text they are representing
+        plt.gca().title.set_text('Word Cloud For "' + texts[i] + '"')
+
+    # Gives the plot an overarching title
+    plt.suptitle('Overall Word Counts')
+
+    # resizes the graph to ensure that it can be clearly read
+    plt.gcf().set_size_inches(50, 14)
+
+    # adjusts spacing between graphs
+    plt.subplots_adjust(wspace=.8, hspace=.8)
+
+    # presents the word clouds
+    plt.show()
+
+
+def sentiment_scatter(data, max_words=None):
+    """ Scatter plot with the x being the positive score of a file and y being the file's negative score
+
+    Args:
+        data (dict): data extracted from the file as a dictionary attribute--> raw data
+        max_words (int): the number of words considered from each file for analysis, based on their frequencies
+    Returns:
+        None (just a scatter plot)
+    """
+    # Ensuring the data types of the inputted parameters are valid
+    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
+
+    # if max_words is given, restrict the analysis to consider only the max_words number of words in each file
+    if max_words is not None:
+        # making sure that the maximum word specification is inputted as an integer
+        assert type(max_words) == int, 'The number of words considered from each file for analysis must be an integer'
+
+    # initialize empty lists
+    texts = []
+    positive_distributions = []
+    negative_distributions = []
+
+    # obtain the word count dictionary of a file
+    word_count_dict = data['wordcount']
+
+    # initialize a sentiment intensity analyzer
+    sia = SentimentIntensityAnalyzer()
+
+    # grab the words from each file and compile them into one string per file
+    for text, word_count in word_count_dict.items():
+        words = convert_file_to_string(word_count, max_words=max_words)
+
+        # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
+        # dictionary
+        sentiment_distribution = sia.polarity_scores(words)
+        pos_score = sentiment_distribution['pos']
+        neg_score = sentiment_distribution['neg']
+
+        # store the names of the files as well as their sentiment distribution dictionaries
+        texts.append(text)
+        positive_distributions.append(pos_score)
+        negative_distributions.append(neg_score)
+
+    # plot the relationship between the positive score and negative score of a file
+    fig, ax = plt.subplots(figsize=(20, 10))
+    ax.scatter(positive_distributions, negative_distributions)
+
+    # Adds labels to each point on the scatter plot
+    for i, txt in enumerate(texts):
+        ax.annotate(txt, (positive_distributions[i], negative_distributions[i]))
+
+    # calculate equation for trendline
+    z = np.polyfit(positive_distributions, negative_distributions, 1)
+    p = np.poly1d(z)
+
+    # add trendline to plot
+    plt.plot(positive_distributions, p(positive_distributions))
+
+    # Adds labels to the scatter plot
+    plt.xlabel('Positive Score')
+    plt.ylabel('Negative Score')
+    plt.title('Negative vs. Positive Score of Different Songs')
+    plt.show()
+
+
 def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=None):
     # Citation: https://realpython.com/python-nltk-sentiment-analysis/
     """ Creates a bar chart for each file representing their overall sentiments
@@ -172,71 +315,6 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     plt.subplots_adjust(wspace=.8, hspace=.8)
 
     # display the bar charts
-    plt.show()
-
-
-def sentiment_scatter(data, max_words=None):
-    """ Scatter plot with the x being the positive score of a file and y being the file's negative score
-
-    Args:
-        data (dict): data extracted from the file as a dictionary attribute--> raw data
-        max_words (int): the number of words considered from each file for analysis, based on their frequencies
-    Returns:
-        None (just a scatter plot)
-    """
-    # Ensuring the data types of the inputted parameters are valid
-    assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
-
-    # if max_words is given, restrict the analysis to consider only the max_words number of words in each file
-    if max_words is not None:
-        # making sure that the maximum word specification is inputted as an integer
-        assert type(max_words) == int, 'The number of words considered from each file for analysis must be an integer'
-
-    # initialize empty lists
-    texts = []
-    positive_distributions = []
-    negative_distributions = []
-
-    # obtain the word count dictionary of a file
-    word_count_dict = data['wordcount']
-
-    # initialize a sentiment intensity analyzer
-    sia = SentimentIntensityAnalyzer()
-
-    # grab the words from each file and compile them into one string per file
-    for text, word_count in word_count_dict.items():
-        words = convert_file_to_string(word_count, max_words=max_words)
-
-        # calculate the sentiment distributions (negative vs. neutral vs. positive) for each file and store them in a
-        # dictionary
-        sentiment_distribution = sia.polarity_scores(words)
-        pos_score = sentiment_distribution['pos']
-        neg_score = sentiment_distribution['neg']
-
-        # store the names of the files as well as their sentiment distribution dictionaries
-        texts.append(text)
-        positive_distributions.append(pos_score)
-        negative_distributions.append(neg_score)
-
-    # plot the relationship between the positive score and negative score of a file
-    fig, ax = plt.subplots(figsize=(20, 10))
-    ax.scatter(positive_distributions, negative_distributions)
-
-    # Adds labels to each point on the scatter plot
-    for i, txt in enumerate(texts):
-        ax.annotate(txt, (positive_distributions[i], negative_distributions[i]))
-
-    # calculate equation for trendline
-    z = np.polyfit(positive_distributions, negative_distributions, 1)
-    p = np.poly1d(z)
-
-    # add trendline to plot
-    plt.plot(positive_distributions, p(positive_distributions))
-
-    # Adds labels to the scatter plot
-    plt.xlabel('Positive Score')
-    plt.ylabel('Negative Score')
-    plt.title('Negative vs. Positive Score of Different Songs')
     plt.show()
 
 
@@ -334,80 +412,5 @@ def total_wordl_boxplot(data):
     plt.title('Word Length Distribution for All Files Combined')
 
     # show plot
-    plt.show()
-
-
-def make_wordclouds(data, colormaps=None, background_color='black', min_font_size=4, normalize_plurals=True,
-                    collocations=False, subplot_rows=4, subplot_columns=3, max_words=None):
-    """ Creates a word cloud that shows the words in a text, with words that appear more frequently appearing larger
-        Args:
-            data (dict): data extracted from the file as a dictionary attribute--> raw data
-            colormaps (list of strings): List of color schemes for the words on the diagram
-            background_color (string): the color of the word cloud's background
-            min_font_size (int): The minimum font size used on the words
-            normalize_plurals (boolean): A boolean value indicating whether the trailing 's' in words should be removed
-            collocations (boolean): A boolean value indicating whether bigrams are considered
-            subplot_rows (int): the number of rows in the sub-plot
-            subplot_columns (int): the number of columns in the sub-plot
-            max_words (int): The maximum number of words represented on the word cloud
-        Returns:
-            None (just word clouds)
-        """
-    # Assertion statements for the input parameters
-    if colormaps is not None:
-        assert type(colormaps) == list, 'The color schemes of the wordcloud must be entered in a list'
-        for colormap in colormaps:
-            assert type(colormap) == str, 'The colormaps for each word cloud must be entered as strings'
-    assert type(background_color) == str, 'The background color of the wordcloud must be entered as a string'
-    assert type(min_font_size) == int, 'The minimum font size of the wordcloud must be entered as an integer'
-    assert type(normalize_plurals) == bool, 'You must indicate whether the plural form of a word should be considered' \
-                                            'the same as its singular form with "True" or "False"'
-    assert type(collocations) == bool, 'You must indicate whether bigrams are considered with "True" or "False"'
-    assert type(subplot_rows) == int, 'The number of rows for the subplot must be an integer'
-    assert type(subplot_columns) == int, 'The number of columns for the subplot must be an integer'
-
-    # initialize empty lists
-    texts = []
-    word_strings = []
-
-    # obtain the word count dictionary of a file
-    word_count_dict = data['wordcount']
-
-    # grab the words from each file and compile them into one string per file
-    for text, word_count in word_count_dict.items():
-        words = convert_file_to_string(word_count, max_words=max_words)
-
-        # store the names of the files and their words strings into lists
-        texts.append(text)
-        word_strings.append(words)
-
-    # initializes the word cloud figure
-    plt.figure()
-
-    # defines the default colormap
-    if colormaps is None:
-        colormaps = ['viridis'] * len(texts)
-
-    for i in range(len(texts)):
-        # generate a subplot word cloud for each file
-        plt.subplot(subplot_rows, subplot_columns, i + 1)
-        wordcloud = WordCloud(background_color=background_color, colormap=colormaps[i], min_font_size=min_font_size,
-                              normalize_plurals=normalize_plurals, collocations=collocations).generate(word_strings[i])
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis('off')
-
-        # Each subplot is labeled based on the text they are representing
-        plt.gca().title.set_text('Word Cloud For "' + texts[i] + '"')
-
-    # Gives the plot an overarching title
-    plt.suptitle('Overall Word Counts')
-
-    # resizes the graph to ensure that it can be clearly read
-    plt.gcf().set_size_inches(50, 14)
-
-    # adjusts spacing between graphs
-    plt.subplots_adjust(wspace=.8, hspace=.8)
-
-    # presents the word clouds
     plt.show()
 
