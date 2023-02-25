@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import sankey as sk
 import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
+import numpy as np
 from wordcloud import WordCloud
 
 
@@ -219,6 +220,13 @@ def sentiment_scatter(data, max_words=None):
     # Adds labels to each point on the scatter plot
     for i, txt in enumerate(texts):
         ax.annotate(txt, (positive_distributions[i], negative_distributions[i]))
+
+    # calculate equation for trendline
+    z = np.polyfit(positive_distributions, negative_distributions, 1)
+    p = np.poly1d(z)
+
+    # add trendline to plot
+    plt.plot(positive_distributions, p(positive_distributions))
 
     # Adds labels to the scatter plot
     plt.xlabel('Positive Score')
