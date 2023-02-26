@@ -4,7 +4,7 @@ DS 3500
 Reusable NLP Library - HW3
 2/27/2023
 
-nlp_parsers.py: json, csv, and excel parsers to get the interested column from the files
+nlp_parsers.py: JSON, CSV, and Excel parsers to get the store the text contents of a file into a list of its words
 """
 # import necessary libraries
 import pandas as pd

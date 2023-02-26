@@ -4,7 +4,7 @@ DS 3500
 Reusable NLP Library - HW3
 2/27/2023
 
-sankey.py: A reusable library for sankey visualization
+sankey.py: A reusable library for Sankey visualization
 """
 # import necessary libraries
 import plotly.graph_objects as go

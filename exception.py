@@ -4,7 +4,7 @@ DS 3500
 Reusable NLP Library - HW3
 2/27/2023
 
-exception.py: A set of classes as framework-specific exception classes
+exception.py: A set of framework-specific exception classes
 """
 
 
@@ -51,7 +51,7 @@ class ParserError(Exception):
     """ A user-defined exception for signaling parser error issue"""
 
     def __init__(self, filename, label=None, parser=None, msg=''):
-        super().__init__('Wrong parser used')
+        super().__init__('Issue with parsing the file')
         self.filename = filename
         self.label = label
         self.parser = parser

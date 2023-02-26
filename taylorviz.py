@@ -4,7 +4,7 @@ DS 3500
 Reusable NLP Library - HW3
 2/27/2023
 
-taylorviz.py: different visualizations to be made
+taylorviz.py: different visualization functions to illustrate findings about registered texts
 """
 # import necessary libraries
 from collections import defaultdict
@@ -55,14 +55,20 @@ def wordcount_sankey(data, word_list=None, k=5):
     """
     # Ensuring the inputted parameters are of a valid type
     assert type(data) == defaultdict, 'The data extracted from this file must be stored in a dictionary'
-    assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
 
-    if word_list is not None:
+    if k is not None:
+        assert type(k) == int, 'The number of words considered from each file for analysis must be an integer'
+        assert word_list is None, 'You cannot specify a list of words to be shown on the diagram while also ' \
+                                  'specifying how many words you want to consider across each file'
+
+    # Initializing a list containing a set of words to be shown on the diagram if not specified
+    if word_list is None:
+        word_list = []
+    else:
         assert type(word_list) == list, 'Must input the words to be shown on the diagram as a list'
         assert all(isinstance(word, str) for word in word_list), 'Word list must only contain strings'
-
-    else:
-        word_list = []
+        assert k is None, 'You cannot specify a list of words to be shown on the diagram while also specifying how ' \
+                          'many words you want to consider across each file'
 
     # obtain the word count dictionary of a file
     word_count_dict = data['wordcount']
@@ -80,10 +86,8 @@ def wordcount_sankey(data, word_list=None, k=5):
         words = list(word_count.keys())
 
         if k is not None:
-            # get only the top k words and adds them to the list of words shown on the diagram
-            for word in words[:k]:
-                if word not in word_list:
-                    word_list.append(word)
+            # get only the top k words and uses them for a list of words shown on the diagram
+            word_list += [word for word in words[:k]]
 
     for text, word_count in word_count_dict.items():
         # Sorts the word counts in descending order by counts
@@ -106,7 +110,7 @@ def wordcount_sankey(data, word_list=None, k=5):
     sk.make_sankey(df_word_counts, 0, 'Text', 'Word', vals=df_word_counts['Counts'])
 
 
-def make_wordclouds(data, colormaps=None, background_color='black', min_font_size=4, normalize_plurals=True,
+def make_word_clouds(data, colormaps=None, background_color='black', min_font_size=4, normalize_plurals=True,
                     collocations=False, subplot_rows=4, subplot_columns=3, max_words=None):
     """ Creates a word cloud that shows the words in a text, with words that appear more frequently appearing larger
         Args:
@@ -298,7 +302,7 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
             elif sentiment == 'neu':
                 plt.barh('Neutral', score, label='Neutral', color='gold')
             # displays the positive score of a text file
-            
+
             elif sentiment == 'pos':
                 plt.barh('Positive', score, label='Positive', color='limegreen')
 
@@ -413,4 +417,3 @@ def total_wordl_boxplot(data):
 
     # show plot
     plt.show()
-
