@@ -21,7 +21,9 @@ def convert_file_to_string(word_count, max_words=None):
     in each file and compiles them into one sting
     Args:
         word_count (dict): contains the words in a file (key) and their frequencies (value)
-        max_words (int): the number of words considered from each file for analysis, based on their frequencies
+        max_words (int): optional the number of words considered from each file for analysis, based on their frequencies
+    Returns:
+        words (list): list of interested words
     """
     # create empty string
     words = ''
@@ -48,7 +50,7 @@ def wordcount_sankey(data, word_list=None, k=5):
     """ Maps each text to words on a Sankey diagram, where the thickness of the line is the frequency of that word
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
-        word_list (list): a list containing a set of words to be shown on the diagram
+        word_list (list): optional list containing a set of words to be shown on the diagram
         k (int): the union of the k most common words across each file
     Returns:
         None (just a sankey diagram!)
@@ -187,10 +189,9 @@ def make_word_clouds(data, colormaps=None, background_color='black', min_font_si
 
 def sentiment_scatter(data, max_words=None):
     """ Scatter plot with the x being the positive score of a file and y being the file's negative score
-
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
-        max_words (int): the number of words considered from each file for analysis, based on their frequencies
+        max_words (int): optional number of words considered from each file for analysis, based on their frequencies
     Returns:
         None (just a scatter plot)
     """
@@ -255,9 +256,9 @@ def sentiment_analysis_bars(data, subplot_rows=5, subplot_columns=2, max_words=N
     """ Creates a bar chart for each file representing their overall sentiments
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
-        subplot_rows (int): the number of rows in the sub-plot
-        subplot_columns (int): the number of columns in the sub-plot
-        max_words (int): the number of words considered from each file for analysis, based on their frequencies
+        subplot_rows (int): optional number of rows in the sub-plot
+        subplot_columns (int): optional number of columns in the sub-plot
+        max_words (int): optional number of words considered from each file for analysis, based on their frequencies
     Returns:
         None (just bar charts!)
     """
@@ -326,7 +327,6 @@ def avgwlength_boxplot(data):
     """ Creates a boxplot summarizing the word length distributions of each registered file
     Citation:
     https://www.tutorialspoint.com/creating-multiple-boxplots-on-the-same-graph-from-a-dictionary-using-matplotlib
-
     Args:
         data (dict): data extracted from the file as a dictionary attribute--> raw data
     Returns:

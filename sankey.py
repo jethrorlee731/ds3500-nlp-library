@@ -13,7 +13,6 @@ import pandas as pd
 
 def _code_mapping(df, src, targ):
     """ Assigns specific values within columns of a dataframe to integers that can be linked via a Sankey chart
-
     Args:
         df (pd.DataFrame): input Pandas dataframe
         src (str): input name of column containing the source values of the Sankey diagram
@@ -43,7 +42,6 @@ def _code_mapping(df, src, targ):
 
 def _prepare_sankey_data(df, src, targ, threshold=None):
     """ Adjusts a dataframe so that it is suited for making a Sankey diagram with
-
     Args:
         df (pd.DataFrame): input Pandas dataframe
         src (str): input name of column containing the source values of the Sankey diagram
@@ -67,7 +65,6 @@ def _prepare_sankey_data(df, src, targ, threshold=None):
 
 def make_sankey(df, threshold, *cols, vals=None, **kwargs):
     """ Create a sankey diagram linking src values to target values with thickness vals
-
     Args:
         df (pd.DataFrame): input Pandas dataframe
         threshold (int): minimum number of instances needed for a combination of values to be shown on the diagram

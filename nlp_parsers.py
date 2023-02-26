@@ -17,7 +17,7 @@ def custom_parser(filename, text_column, parser):
         text_column (str): name of column of interest from the dataframe (which contains the texts)
         parser (str): type of custom parser to be used (json, csv, or Excel)
     Returns:
-        clean_words_list (list) list of words (str) of the interested words from the file
+        clean_words_list (list): list of words (str) of the interested words from the file
     """
     assert type(filename) == str, 'File name must be specified as a string'
     assert type(text_column) == str, 'The column of the new dataframe which contains the texts must be specified as ' \
