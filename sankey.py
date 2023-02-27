@@ -83,7 +83,7 @@ def make_sankey(df, threshold, *cols, vals=None, **kwargs):
     Args:
         df (pd.DataFrame): input Pandas dataframe
         threshold (int): minimum number of instances needed for a combination of values to be shown on the diagram
-        vals (ints): integer values that determine the thickness of each bar on the Sankey diagram
+        vals (series): series for thickness of each bar on the Sankey diagram
         *cols (tuple): names of columns (str) with the values in df for the Sankey diagram layers. The columns are shown
                        from left to right based on the order they are inputted (1st inputted column = left-most layer)
         **kwargs (dict): additional parameters (strings linked to float) to personalize the Sankey chart further
@@ -115,7 +115,7 @@ def make_sankey(df, threshold, *cols, vals=None, **kwargs):
     if vals is None:
         vals = sankey_data['Counts']
     else:
-        assert df.dtypes['Counts'] == int, 'The thickness of the bars must be specified as integers'
+        assert vals.dtype == 'int64', 'The thickness of the bars must be specified as integers'
 
     # Prepares the aesthetics of the Sankey diagram (e.g. links, labels, optional padding, other specifics in kwargs)
     sankey_data, labels = _code_mapping(sankey_data, 'src', 'targ')
