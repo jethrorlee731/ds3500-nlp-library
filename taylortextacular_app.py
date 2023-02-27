@@ -25,7 +25,7 @@ def main():
     # initialize framework
     ts = Nlp()
 
-    # create a list of the files getting registered and list of their labels
+    # create a list of the files getting registered and a list of their labels
     files = ['TaylorSwiftOurSong.txt', 'TaylorSwiftFearless.txt', 'TaylorSwiftDearJohn.txt', 'TaylorSwiftRed.txt',
              'TaylorSwiftWelcometoNewYork.txt', 'TaylorSwiftGetawayCar.txt', 'TaylorSwiftLover.txt',
              'TaylorSwiftCardigan.txt', 'TaylorSwiftWillow.txt', 'TaylorSwiftLavenderHaze.txt']
@@ -41,7 +41,7 @@ def main():
         # indicates whether there was an issue with registering the files
         print(str(pe))
 
-    # produce a Sankey diagram for the top 5 words within each registered file
+    # produce a Sankey diagram linking the top 5 words within each registered file to the files they are present in
     ts.load_visualization('sankey', tviz.wordcount_sankey)
     ts.visualize('sankey')
 
@@ -58,19 +58,19 @@ def main():
     ts.load_visualization('sentimentscatter', tviz.sentiment_scatter)
     ts.visualize('sentimentscatter')
 
-    # produce sentiment analysis bar subplots for each of the files passed in
+    # produce sentiment analysis bar subplots (positive vs. neutral vs. negative scores) for each of the files passed in
     ts.load_visualization('sentimentbar', tviz.sentiment_analysis_bars, 5, 2)
     ts.visualize('sentimentbar')
 
-    # produce a boxplot about the lengths of the words for each of the files passed in
+    # produce a boxplot summarizing the lengths of the words in each of the files passed in
     ts.load_visualization('boxplot', tviz.avgwlength_boxplot)
     ts.visualize('boxplot')
 
-    # produce a bar chart for average length of the words in each registered file
+    # produce a bar chart comparing the average length of the words in each registered file
     ts.load_visualization('barchart', tviz.avgwlength_bar)
     ts.visualize('barchart')
 
-    # produce a box plot summarizing the length of the words for all the files combined
+    # produce a box plot summarizing the lengths of the words in all the files combined
     ts.load_visualization('totalboxplot', tviz.total_wordl_boxplot)
     ts.visualize('totalboxplot')
 

@@ -12,7 +12,7 @@ class DataResultsError(Exception):
     """ A user-defined exception for signaling an issue with creating a dictionary containing the word frequencies,
     overall word count, world length list, and average word lengths of a file
     Attributes:
-        clean_words (list): list of interested words that are clean
+        clean_words (list): list of words of interest that are clean
         msg (str): message shown to user
     """
     def __init__(self, clean_words, msg=''):

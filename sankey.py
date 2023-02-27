@@ -22,6 +22,12 @@ def _code_mapping(df, src, targ):
         df (pd.DataFrame): an updated version of the inputted dataframe in which each value is mapped to one integer
         labels (list of str): labels used for the bars of the Sankey diagram
     """
+    # Checking that the inputted parameters are of a valid type
+    assert isinstance(df, pd.DataFrame), 'The inputted dataframe must be a Pandas dataframe'
+    assert isinstance(src, str), 'The name of the column containing the source values of the Sankey diagram must be ' \
+                                 'inputted as a string'
+    assert isinstance(targ, str), 'The name of the column containing the target values of the Sankey diagram must be ' \
+                                  'inputted as a string'
 
     # Get distinct labels
     data_types_dict = {src: str, targ: str}
@@ -52,6 +58,15 @@ def _prepare_sankey_data(df, src, targ, threshold=None):
         df (pd.DataFrame): updated version of the inputted Pandas dataframe, which contains no rows where the count
                            for rows with a certain combination of values is below a threshold (if specified)
     """
+    # Checking that the inputted parameters are of a valid type
+    assert isinstance(df, pd.DataFrame), 'The inputted dataframe must be a Pandas dataframe'
+    assert isinstance(src, str), 'The name of the column containing the source values of the Sankey diagram must be ' \
+                                 'inputted as a string'
+    assert isinstance(targ, str), 'The name of the column containing the target values of the Sankey diagram must be ' \
+                                  'inputted as a string'
+    assert isinstance(threshold, int), 'The minimum number of instances that a combination of values must have to be ' \
+                                       'shown on the diagram must be entered as an integer'
+
     # Aggregation: counts the number of artists grouped by both the source value and target value
     df = df.groupby([src, targ]).size().reset_index(name="Counts")
 
@@ -76,6 +91,14 @@ def make_sankey(df, threshold, *cols, vals=None, **kwargs):
     Returns:
         Nothing, just generates and presents a Sankey diagram
     """
+    # Checking that the inputted parameters are of a valid type and/or value
+    assert isinstance(df, pd.DataFrame), 'The inputted dataframe must be a Pandas dataframe'
+    assert isinstance(threshold, int), 'The minimum number of instances that a combination of values must have to be ' \
+                                       'shown on the diagram must be entered as an integer'
+    assert all(isinstance(col, str) for col in cols), 'The columns used for the Sankey diagram must be specified as ' \
+                                                      'strings'
+    assert len(cols) >= 2, 'You must specify at least 2 columns to generate a Sankey diagram with'
+
     # Stacks all the data indicated by the inputted columns into one dataframe
     sankey_data = df[[cols[0], cols[1]]]
     sankey_data.columns = ['src', 'targ']
@@ -91,6 +114,8 @@ def make_sankey(df, threshold, *cols, vals=None, **kwargs):
     # Assigns values to be used on the Sankey chart between two nodes if they aren't given
     if vals is None:
         vals = sankey_data['Counts']
+    else:
+        assert df.dtypes['Counts'] == int, 'The thickness of the bars must be specified as integers'
 
     # Prepares the aesthetics of the Sankey diagram (e.g. links, labels, optional padding, other specifics in kwargs)
     sankey_data, labels = _code_mapping(sankey_data, 'src', 'targ')
