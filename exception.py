@@ -1,5 +1,5 @@
 """
-Jethro Lee and Michelle Wang
+Jethro R. Lee and Michelle Wang
 DS 3500
 Reusable NLP Library - HW3
 2/27/2023
@@ -49,7 +49,7 @@ class DefaultParsingError(Exception):
 class SaveResultsError(Exception):
     """A user-defined exception for signaling an issue with integrating parsing results into the internal state
     Attributes:
-        label (str): unique label for a text file that we parsed
+        label (str): unique label for a parsed text file
         results (dict): the data extracted from the file as a dictionary attribute--> raw data
         msg (str): message shown to user
     """
@@ -61,7 +61,7 @@ class SaveResultsError(Exception):
 
 
 class ParserError(Exception):
-    """ A user-defined exception for signaling parser error issue
+    """ A user-defined exception for signaling a parser error issue
     Attributes:
         filename (str): name of the file of interest
         label (str): optional label for file
@@ -93,26 +93,26 @@ class LoadStopWordError(Exception):
 
 
 class LoadVisualizationError(Exception):
-    """ A user-defined exception for an issue with loading the visualization into the internal state
+    """ A user-defined exception for an issue with loading a visualization into the internal state
     Attributes:
         name (str): name of visualization
         vizfunc (function): name of function to execute the visualization
         msg (str): message shown to user
     """
     def __init__(self, name, vizfunc, msg=''):
-        super().__init__('Visualization could not be integrated into the internal state')
+        super().__init__(name, 'could not be integrated into the internal state')
         self.name = name
         self.vizfunc = vizfunc
         self.msg = msg
 
 
 class VisualizeError(Exception):
-    """ A user-defined exception for an issue with plotting the visualization
+    """ A user-defined exception for an issue with plotting the visualization(s)
     Attributes:
-        name (str): optional parameter for name of visualization
+        name (str): optional parameter for the name of a visualization
         msg (str): message shown to user
     """
     def __init__(self, name=None, msg=''):
-        super().__init__('Visualization could not be plotted')
+        super().__init__('Visualization(s) could not be plotted')
         self.name = name
         self.msg = msg

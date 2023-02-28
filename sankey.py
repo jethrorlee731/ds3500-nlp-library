@@ -1,5 +1,5 @@
 """
-Jethro Lee and Michelle Wang
+Jethro R. Lee and Michelle Wang
 DS 3500
 Reusable NLP Library - HW3
 2/27/2023
@@ -79,13 +79,13 @@ def _prepare_sankey_data(df, src, targ, threshold=None):
 
 
 def make_sankey(df, threshold, *cols, vals=None, **kwargs):
-    """ Create a sankey diagram linking src values to target values with thickness vals
+    """ Create a Sankey diagram linking src values to target values with thickness vals
     Args:
         df (pd.DataFrame): input Pandas dataframe
         threshold (int): minimum number of instances needed for a combination of values to be shown on the diagram
-        vals (series): series for thickness of each bar on the Sankey diagram
         *cols (tuple): names of columns (str) with the values in df for the Sankey diagram layers. The columns are shown
                        from left to right based on the order they are inputted (1st inputted column = left-most layer)
+        vals (series): series for thickness of each bar on the Sankey diagram
         **kwargs (dict): additional parameters (strings linked to float) to personalize the Sankey chart further
 
     Returns:
@@ -97,7 +97,7 @@ def make_sankey(df, threshold, *cols, vals=None, **kwargs):
                                        'shown on the diagram must be entered as an integer'
     assert all(isinstance(col, str) for col in cols), 'The columns used for the Sankey diagram must be specified as ' \
                                                       'strings'
-    assert len(cols) >= 2, 'You must specify at least 2 columns to generate a Sankey diagram with'
+    assert len(cols) >= 2, 'You must specify at least 2 columns to generate the Sankey diagram with'
 
     # Stacks all the data indicated by the inputted columns into one dataframe
     sankey_data = df[[cols[0], cols[1]]]

@@ -1,10 +1,10 @@
 """
-Jethro Lee and Michelle Wang
+Jethro R. Lee and Michelle Wang
 DS 3500
 Reusable NLP Library - HW3
 2/27/2023
 
-nlp_parsers.py: JSON, CSV, and Excel parsers to store the text contents of a file into a list of its words
+nlp_parsers.py: JSON, CSV, Excel, and optional custom parsers to store the contents of a file into a list of its words
 """
 # import necessary libraries
 import pandas as pd
@@ -17,7 +17,7 @@ def custom_parser(filename, text_column, parser):
         text_column (str): name of column of interest from the dataframe (which contains the texts)
         parser (str): type of custom parser to be used
     Returns:
-        clean_words_list (list): list of words (str) words from the file without whitespace characters
+        clean_words_list (list): list of words (str) from the file without whitespace characters
 
     These parsers are for non-txt files only.
 
@@ -50,14 +50,14 @@ def custom_parser(filename, text_column, parser):
     # turn the column of texts into a list
     words_list = list(df_text)
 
-    # parse a JSON, CSV, or Excel file with the appropriate default parser
-    if parser in ['JSON', 'CSV', 'Excel']:
+    # parse a JSON, CSV, or Excel file with an appropriate default parser
+    if parser.lower() in ['json', 'csv', 'excel']:
         for word in words_list:
             # remove leading and trailing white-spaces
             word = word.strip()
             clean_words_list.append(word)
     else:
-        # Make sure the inputted string indicating the custom parser is a callable function
+        # If a user wants to use a custom parser, make sure they input a string indicating a callable function
         assert (callable(parser)), "The name of your parser must be a callable function. Don't forget to import it " \
                                    "if necessary"
         # parse a JSON, CSV, or Excel file with a custom parser

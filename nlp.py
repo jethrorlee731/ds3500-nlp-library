@@ -14,7 +14,7 @@ from exception import *
 
 
 class Nlp:
-    """ Core framework for NLP comparative analysis
+    """ Core framework class for NLP comparative analysis
     Attributes:
         data (dict): dictionary managing data about the different texts that we register with the framework
         viz (dict): dictionary that maps the name of the visualization to a visualization function
@@ -38,7 +38,6 @@ class Nlp:
                                                                                'strings before getting used'
 
         try:
-            # set length equal to 0
             length = 0
             for word in clean_words:
                 # add length of word to length variable
@@ -52,7 +51,7 @@ class Nlp:
                 # append length of word to the new list
                 word_length_list.append(len(word))
 
-            # create a dictionary with info on the frequency of each unique word in a file , the word count of the file,
+            # create a dictionary with info on the frequency of each unique word in a file, the word count of the file,
             # the lengths of the words, and the average word length of a file
             results = {
                 'wordcount': Counter(clean_words),
@@ -61,7 +60,7 @@ class Nlp:
                 'avgwordlength': avg_wl
             }
         except Exception as e:
-            # throw an error message if the dictionary fails to be created
+            # throw an error message if the dictionary cannot be created
             raise DataResultsError(clean_words, str(e))
 
         else:
@@ -93,7 +92,7 @@ class Nlp:
             clean_words = [word.lower() for word in words if word.lower() not in stop_words]
 
         except Exception as e:
-            # throws an error message is the stop words cannot be filtered out
+            # throws an error message if the stop words cannot be filtered out
             raise StopWordError(words, str(e))
 
         else:
@@ -229,9 +228,9 @@ class Nlp:
             print('Document is successfully registered')
 
     @staticmethod
-    # https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
     def _load_stop_words(stopfile=None, parser=None):
-        """ Load the stop words and clean it
+        """ Load the stop word file and clean it
+        Citation: https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
         Args:
             stopfile (str): optional txt file containing stop words, or common words, that will get filtered
             parser (str): optional parser to be used
@@ -255,6 +254,7 @@ class Nlp:
                     # clean the custom stopfile
                     stop_words = Nlp._default_parser(stopfile)
                 else:
+                    # check that the parser is inputted as a string
                     assert isinstance(parser, str), 'Parser must be inputted as a string'
 
                     # clean the NLTK stopfile
@@ -274,8 +274,9 @@ class Nlp:
         Args:
             name (str): name of visualization
             vizfunc (function): name of function to execute the visualization
-            *args: unlimited number of defined parameters for the visualization
-            **kwargs: unlimited number of undefined parameters for the visualization
+            *args (tuple): unlimited number of defined parameters for the visualization
+            **kwargs (dict): unlimited number of undefined parameters for the visualization (parameter name = key,
+                             parameter value = value)
         Returns:
             None (just loads the visualization into the internal state)
         """
@@ -293,12 +294,12 @@ class Nlp:
 
         else:
             # throws a success message if the visualization is added to the internal state
-            print('Visualization is successfully integrated into the internal state')
+            print(name, 'is successfully integrated into the internal state')
 
     def visualize(self, name=None):
-        """ Call the vizfunc to plot the visualization
+        """ Call the vizfunc to plot the visualization(s)
         Args:
-            name (str): optional parameter for name of visualization
+            name (str): optional parameter for the name of a visualization
         Returns:
             None (just plots the specified visualization(s))
         """
@@ -316,9 +317,9 @@ class Nlp:
                 vizfunc(self.data, *args, **kwargs)
 
         except Exception as e:
-            # throws an error message if the visualization cannot get plotted
+            # throws an error message if the visualization(s) cannot get plotted
             raise VisualizeError(name, str(e))
 
         else:
             # throws a success message if the visualization gets plotted
-            print('Visualization successfully plotted')
+            print('Visualization(s) successfully plotted')

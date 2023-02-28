@@ -25,12 +25,20 @@ def main():
     # initialize framework
     ts = Nlp()
 
-    # create a list of the files getting registered and a list of their labels
+    # create a list of the files getting registered, a list of their labels, a list of the visualization functions
+    # used to illustrate word data about them, and a list of labels for the visualizations
     files = ['TaylorSwiftOurSong.txt', 'TaylorSwiftFearless.txt', 'TaylorSwiftDearJohn.txt', 'TaylorSwiftRed.txt',
              'TaylorSwiftWelcometoNewYork.txt', 'TaylorSwiftGetawayCar.txt', 'TaylorSwiftLover.txt',
              'TaylorSwiftCardigan.txt', 'TaylorSwiftWillow.txt', 'TaylorSwiftLavenderHaze.txt']
     file_labels = ['Our Song', 'Fearless', 'Dear John', 'Red', 'Welcome to New York', 'Getaway Car', 'Lover',
                    'Cardigan', 'Willow', 'Lavender Haze']
+    vis_funcs = [tviz.wordcount_sankey, tviz.sentiment_scatter, tviz.avgwlength_boxplot, tviz.avgwlength_bar,
+                 tviz.total_wordl_boxplot]
+    vis_names = ['wordcountsankey', 'sentimentscatter', 'avgwlengthboxplot', 'avgwlengthbar', 'totalwordlengthboxplot']
+
+    # colors used for the word cloud
+    word_cloud_colors = ['summer', 'Wistia', 'BuPu', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
+                         'Purples']
 
     try:
         # register some text files
@@ -41,38 +49,18 @@ def main():
         # indicates whether there was an issue with registering the files
         print(str(pe))
 
-    # produce a Sankey diagram linking the top 5 words within each registered file to the files they are present in
-    ts.load_visualization('sankey', tviz.wordcount_sankey)
-    ts.visualize('sankey')
+    # load all the visualization functions that don't require parameters
+    for i in range(len(vis_funcs)):
+        ts.load_visualization(name=vis_names[i], vizfunc=vis_funcs[i])
 
-    # produce a wordcloud for the word counts from each file
-
-    # colors used for the word cloud
-    word_cloud_colors = ['summer', 'Wistia', 'BuPu', 'Reds', 'Blues', 'bone', 'spring_r', 'gist_yarg', 'copper',
-                         'Purples']
-
+    # produces a word cloud that visualizes the distinct word counts from each file
     ts.load_visualization('wordcloud', tviz.make_word_clouds, colormaps=word_cloud_colors)
-    ts.visualize('wordcloud')
 
-    # produce a scatter plot showing the relationship between the degree to which a file's tone is positive vs. negative
-    ts.load_visualization('sentimentscatter', tviz.sentiment_scatter)
-    ts.visualize('sentimentscatter')
-
-    # produce sentiment analysis bar subplots (positive vs. neutral vs. negative scores) for each of the files passed in
+    # makes sentiment analysis bar subplots (positive vs. neutral vs. negative scores) for each of the files passed in
     ts.load_visualization('sentimentbar', tviz.sentiment_analysis_bars, 5, 2)
-    ts.visualize('sentimentbar')
 
-    # produce a boxplot summarizing the lengths of the words in each of the files passed in
-    ts.load_visualization('boxplot', tviz.avgwlength_boxplot)
-    ts.visualize('boxplot')
-
-    # produce a bar chart comparing the average length of the words in each registered file
-    ts.load_visualization('barchart', tviz.avgwlength_bar)
-    ts.visualize('barchart')
-
-    # produce a box plot summarizing the lengths of the words in all the files combined
-    ts.load_visualization('totalboxplot', tviz.total_wordl_boxplot)
-    ts.visualize('totalboxplot')
+    # display all the loaded visualizations
+    ts.visualize()
 
 
 if __name__ == '__main__':
